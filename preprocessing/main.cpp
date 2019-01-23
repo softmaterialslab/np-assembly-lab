@@ -53,7 +53,7 @@ int main(int argc, const char *argv[]) {
             ("Mpi_procs,m", value<int>(&mpiProcs)->default_value(1), "Number of MPI procs for Lammps")
             ("initDumpStep,i", boost::program_options::value<int>(&initDumpStep)->default_value(0),
              "Specify the initial dump step to be used (dump step, not timestep).")
-            ("dataSetCount,N", boost::program_options::value<int>(&dataSetCount)->default_value(100),
+            ("dataSetCount,N", boost::program_options::value<int>(&dataSetCount)->default_value(150),
              "Specify the number of subsequent datasets to use after the initial dump step.");
 
 

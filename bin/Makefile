@@ -2,14 +2,14 @@
 
 JOBSCR = macroassembly.pbs
 TESTSCR = test.pbs
-Q=1500 
+Q=1500
 n=25 
 c=0.150 
 q=35 
 D=56 
-d=6.7 
+d=6.7
 i=0 
-N=100
+N=150
 NODESIZE=4
 
 run-preprocessor:

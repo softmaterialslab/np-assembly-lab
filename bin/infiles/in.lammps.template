@@ -47,20 +47,28 @@ compute	myVirusPot	virus	reduce	sum	c_virusPotVec
 compute	dendPotVec	dend	pe/atom
 compute	myDendPot	dend	reduce	sum	c_dendPotVec
 
-restart	50000	outfiles/assemblyRestart.*	# creates 5 restart files up to equilibration; can comment this
-run	50000     #run for 2.5 million without dumping anything
-
-## Defining Output Information ##
-dump	posD	virus	custom	${myDStep}	outfiles/dump.melt	id	type	x	y	z	# c_atomPot	c_atomKin
-dump   	myimages virus image 50000 outfiles/image.*.jpg type type &
+## Initial Image Dump ##
+dump   	myimages virus image 100000 outfiles/image.*.jpg type type &
                	axes yes 0.8 0.02 view 60 -30
 dump_modify    	myimages pad 3
 
-thermo_style	custom	step	temp	c_myVirusT	c_myDendT	c_myVirusPot	c_myDendPot	etotal	ke	pe	vol	press
-thermo	1000
+thermo_style	custom	step	temp	c_myVirusT	c_myDendT	c_myVirusPot	c_myDendPot	etotal	ke	pe	vol	#press
+thermo	10000
 
-restart	10000	outfiles/assemblyRestart.*	# creates 5 restart files post equilibration; keep this
-run	100000
+restart	500000	outfiles/assemblyRestart.*	# creates 5 restart files up to equilibration; can comment this
+run	2500000    #run for 2.5 million without dumping anything
+
+## Defining Output Information ##
+dump	posD	virus	custom	${myDStep}	outfiles/dump.melt	id	type	x	y	z	# c_atomPot	c_atomKin
+#dump   	myimages virus image 100000 outfiles/image.*.jpg type type &
+#               	axes yes 0.8 0.02 view 60 -30
+#dump_modify    	myimages pad 3
+
+#thermo_style	custom	step	temp	c_myVirusT	c_myDendT	c_myVirusPot	c_myDendPot	etotal	ke	pe	vol	#press
+#thermo	1000
+
+restart	500000	outfiles/assemblyRestart.*	# creates 5 restart files post equilibration; keep this
+run	1500000
 
 unfix	ens
 undump	posD
@@ -71,5 +79,5 @@ uncompute	virusPotVec
 uncompute	myVirusPot
 uncompute	dendPotVec
 uncompute	myDendPot
-shell		echo "Lammps Simulation Ended"
-shell		./postprocessor -n USERINPUT_LIGAND_NUMBER -N USERINPUT_DATASETCOUNT
+#shell		echo "Lammps Simulation Ended"
+#shell		./postprocessor -n USERINPUT_LIGAND_NUMBER -N USERINPUT_DATASETCOUNT
