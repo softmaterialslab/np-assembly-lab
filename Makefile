@@ -1,6 +1,6 @@
 #This make file builds the sub folder make files
 #example make call for bigred2
-# make cluster-submit Q=1500 n=25 c=0.150 q=35 D=56 d=6.7 i=0 N=100
+# make cluster-submit Q=1500 n=25 c=0.150 q=35 D=56 d=6.7 i=0 N=150
 
 PROGPRE = preprocessor
 PROGPOST = postprocessor
@@ -17,7 +17,7 @@ q=35
 D=56 
 d=6.7 
 i=0 
-N=100
+N=150
 NODESIZE=4
 
 all:
