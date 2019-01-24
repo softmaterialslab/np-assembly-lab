@@ -56,7 +56,7 @@ thermo_style	custom	step	temp	c_myVirusT	c_myDendT	c_myVirusPot	c_myDendPot	etot
 thermo	10000
 
 restart	500000	outfiles/assemblyRestart.*	# creates 5 restart files up to equilibration; can comment this
-run	2500000    #run for 2.5 million without dumping anything
+run	1500000    #run for 2.5 million without dumping anything
 
 ## Defining Output Information ##
 dump	posD	virus	custom	${myDStep}	outfiles/dump.melt	id	type	x	y	z	# c_atomPot	c_atomKin
