@@ -2,7 +2,7 @@
 # Use option -p in CC for profiling with gprof
 
 PROG = postprocessor
-BIN = ../bin/
+BIN = ../../bin/
 bindir = bin
 OBJ = main.o functions.o
 CCF = CC

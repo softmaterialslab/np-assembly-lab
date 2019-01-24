@@ -6,9 +6,9 @@ PROGPRE = preprocessor
 PROGPOST = postprocessor
 JOBSCR = macroassembly.pbs
 TESTSCR = test.pbs
-BIN = bin
-PRE = src/preprocessing
-POST = src/postprocessing
+BIN = ../bin/
+PRE = preprocessing
+POST = postprocessing
 SCRIPT = scripts
 Q=1500 
 n=25 
@@ -34,11 +34,6 @@ else
 endif
 	@echo "Ending the build of the project";
 
-local-install: create-dirs
-	make all
-
-cluster-install: create-dirs
-	make CCF=BigRed2 all
 
 nanoHUB-install: create-dirs
 	make CCF=nanoHUB all
@@ -49,20 +44,6 @@ create-dirs:
 	if ! [ -d $(BIN)/outfiles ]; then mkdir $(BIN)/outfiles; fi
 	if ! [ -d $(BIN)/infiles ]; then mkdir $(BIN)/infiles; fi
 	@echo "Directory creation is over."
-
-cluster-submit:
-	@echo "Running the preprocessor to create lammps script."
-	+$(MAKE) -C $(BIN) run-preprocessor Q=$(Q) n=$(n) c=$(c) q=$(q) D=$(D) d=$(d) i=$(i) N=$(N)
-	@echo "Running the preprocessor is over."
-	@echo "Installing jobscript into $(BIN) directory"
-	cp -f $(SCRIPT)/$(JOBSCR) $(BIN)
-	+$(MAKE) -C $(BIN) submit
-
-local-run:
-	@echo "Running the preprocessor to create lammps script."
-	+$(MAKE) -C $(BIN) run-preprocessor Q=$(Q) n=$(n) c=$(c) q=$(q) D=$(D) d=$(d) i=$(i) N=$(N)
-	@echo "Running the preprocessor is over."
-	+$(MAKE) -C $(BIN) run-local NODESIZE=$(NODESIZE)
 
 clean:
 	rm -f $(PRE)/*.o
