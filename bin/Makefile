@@ -19,6 +19,9 @@ submit:
 	@echo "Launching the job";
 	qsub $(JOBSCR)
 
-run-local:
+run-local-parallel:
 	time mpirun -n $(NODESIZE) lmp_g++ < in.lammps
+
+run-local-serial:
+	time lmp_g++ < in.lammps
 

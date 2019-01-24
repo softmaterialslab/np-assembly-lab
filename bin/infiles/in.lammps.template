@@ -49,8 +49,9 @@ compute	myDendPot	dend	reduce	sum	c_dendPotVec
 
 ## Initial Image Dump ##
 dump   	myimages virus image 100000 outfiles/image.*.jpg type type &
-               	axes yes 0.8 0.02 view 60 -30
+               	axes no 0.8 0.02 view 60 -30
 dump_modify    	myimages pad 3
+dump_modify	myimages boxcolor black backcolor white
 
 thermo_style	custom	step	temp	c_myVirusT	c_myDendT	c_myVirusPot	c_myDendPot	etotal	ke	pe	vol	#press
 thermo	10000

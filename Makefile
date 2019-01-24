@@ -58,11 +58,17 @@ cluster-submit:
 	cp -f $(SCRIPT)/$(JOBSCR) $(BIN)
 	+$(MAKE) -C $(BIN) submit
 
+local-run-parallel:
+	@echo "Running the preprocessor to create lammps script."
+	+$(MAKE) -C $(BIN) run-preprocessor Q=$(Q) n=$(n) c=$(c) q=$(q) D=$(D) d=$(d) i=$(i) N=$(N)
+	@echo "Running the preprocessor is over."
+	+$(MAKE) -C $(BIN) run-local-parallel NODESIZE=$(NODESIZE)
+
 local-run:
 	@echo "Running the preprocessor to create lammps script."
 	+$(MAKE) -C $(BIN) run-preprocessor Q=$(Q) n=$(n) c=$(c) q=$(q) D=$(D) d=$(d) i=$(i) N=$(N)
 	@echo "Running the preprocessor is over."
-	+$(MAKE) -C $(BIN) run-local NODESIZE=$(NODESIZE)
+	+$(MAKE) -C $(BIN) run-local-serial 
 
 clean:
 	rm -f $(PRE)/*.o
