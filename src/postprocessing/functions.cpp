@@ -183,7 +183,8 @@ void compute_gr_11(int stageFlag, vector<BINCONTAINER>& gr, unsigned int ngr, ve
       gr[b].population = gr[b].population / Particle1_List.size();    // Normalize by the number of particles.
       gr[b].population = gr[b].population / ngr;                      // Normalize by the number of datasets.
       gr[b].population = gr[b].population / nid;                      // Normalize by the expected number in ideal gas.
-      grStream << rMedian << "\t" << gr[b].population << endl;
+      if (rMedian <= 4.3)                                             // Limiting to not show data at artificial cutoff
+        grStream << rMedian << "\t" << gr[b].population << endl;
     }
     grStream.close();
     cout << "\tRDF (type 1-1) file output complete." << endl;
