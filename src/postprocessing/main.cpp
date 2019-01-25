@@ -188,7 +188,7 @@ int main(int argc, const char *argv[]) {
     // Remove the previous and create the new instantaneous dump files (from the master movie 'dump.melt'):
     if (createInstFilesFlag == 'y') {
         if (boost::filesystem::remove_all("dumpfiles") == 0)
-            perror("\n\tError deleting instantaneous dump files directory ");
+            cout << "\n\tError deleting instantaneous dump files directory ";
         else cout << "Pre-existing instantaneous dump files folder deleted successfully." << endl;
         //  Create the directory that will store instantaneous dump files & populate it:
         boost::filesystem::create_directory("dumpfiles");
