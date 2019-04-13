@@ -48,16 +48,18 @@ compute	dendPotVec	dend	pe/atom
 compute	myDendPot	dend	reduce	sum	c_dendPotVec
 
 ## Initial Image Dump ##
-dump   	myimages virus image 100000 outfiles/image.*.jpg type type &
+dump   	myimages all image 10000 outfiles/image.*.jpg type type &
                	axes no 0.8 0.02 view 60 -30
 dump_modify    	myimages pad 3
 dump_modify	myimages boxcolor black backcolor white
+dump_modify myimages adiam 1 1
+dump_modify myimages adiam 2 0.1
 
 print "OUTPUT COLUMNS: SIMULATION STEP NUMBER | TEMPERATURE | NP POTENTIAL ENERGY | SYSTEM VOLUME"
 
 #thermo_style	custom	step	temp	c_myVirusT	c_myDendT	c_myVirusPot	c_myDendPot	etotal	ke	pe	vol	#press
 thermo_style	custom	step	temp	c_NanoparticlePE	vol	#press
-thermo	50000
+thermo	10000
 
 restart	500000	outfiles/assemblyRestart.*	# creates 5 restart files up to equilibration; can comment this
 run	1500000    #run for 2.5 million without dumping anything
