@@ -14,3 +14,6 @@ What does this code do
 * At the end of simulation run, which will take close to 60 minutes, g(r) will be produced in the "Pair Correlation" tab. 
 
 For further details please refer to the [documentation](https://softmaterialslab.github.io/np-assembly-lab/) 
+
+### NanoHUB app page:
+* https://nanohub.org/tools/npassemblylab/
