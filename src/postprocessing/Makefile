@@ -13,8 +13,8 @@ nanoHUBLFLAG = -lm -L${BOOST_LIBDIR} -lboost_program_options -lboost_filesystem 
 nanoHUBCFLAG = -I${BOOST_INCDIR}
 nanoHUBOFLAG = -o
 # BigRed2 flags. 
-BigRed2CC = CC -O3 -g -std=c++11
-BigRed2LFLAG = -lgsl -lgslcblas -lm -lboost_program_options -lboost_filesystem -lboost_system
+BigRed2CC = CC -O3 -g -Wall -fopenmp -std=c++11 -Wunused-variable -Wunknown-pragmas
+BigRed2LFLAG = -L/N/soft/cle7/boost/gnu/1.76.0/lib -L/N/soft/cle7/gsl/gnu/2.7/lib -lgsl -lgslcblas -lm -lboost_filesystem -lboost_system -lboost_program_options -lboost_mpi -lboost_serialization
 BigRed2CFLAG = -c
 BigRed2OFLAG = -o
 # General purpose flags.
