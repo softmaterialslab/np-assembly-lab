@@ -27,9 +27,23 @@ void compute_gr(int flag, vector<BINCONTAINER>& gr, unsigned int ngr, vector<PAR
   if (flag == 1)	// sample and create histogram
   {
     //for (unsigned int i = 0; i < vlp.size()-1; i++) WHY -1!!! it should not matter
+      
+    int counter;
+    int addMember;
+      
     for (unsigned int i = 0; i < vlp.size(); i++)    
     {
-      for (unsigned int j = i+1; j < vlp.size(); j++)
+      if (vlpOriginType == vlpTargetType)
+      {
+          counter = i+1;
+          addMember = 2;
+      }
+      else
+      { 
+          counter = 0;
+          addMember = 1;
+      }
+      for (unsigned int j = counter; j < vlp.size(); j++)
       {
           if (vlp[i].ty != vlpOriginType || vlp[j].ty != vlpTargetType)
           {
@@ -48,7 +62,7 @@ void compute_gr(int flag, vector<BINCONTAINER>& gr, unsigned int ngr, vector<PAR
           if (r < L/2.0)
           {
               int bin_number = ceil((r/bin_width));
-              gr[bin_number - 1].population = gr[bin_number - 1].population + 2;
+              gr[bin_number - 1].population = gr[bin_number - 1].population + addMember;
           }
         }
       }
@@ -67,9 +81,9 @@ void compute_gr(int flag, vector<BINCONTAINER>& gr, unsigned int ngr, vector<PAR
       double r = gr[b].position;
       long double vol_bin = (4.0/3.0)*pi*(3*r*r*bin_width + 3*r*bin_width*bin_width + bin_width*bin_width*bin_width);
       
-      //long double nid = vol_bin*bulk_density;
-      double ideal_gas_density = (vlp.size()-1)/(L*L*L);
-      long double nid = vol_bin*ideal_gas_density;
+      long double nid = vol_bin*bulk_density;
+      //double ideal_gas_density = (vlp.size()-1)/(L*L*L);
+      //long double nid = vol_bin*ideal_gas_density;
       
       gr[b].population = gr[b].population / vlp.size();
       gr[b].population = gr[b].population / ngr;
@@ -87,7 +101,7 @@ void compute_gr(int flag, vector<BINCONTAINER>& gr, unsigned int ngr, vector<PAR
 }
 
 // select which gr to compute
-int select_gr(int vlpTypes, int *vlpOriginType, int *vlpTargetType)
+int select_gr(int vlpTypes, int *vlpOriginType, int *vlpTargetType, long double *bulk_density_per_variant_for_norm, int N, int variants, long double V)
 {
   string grType;
   int selfType, crossOriginType, crossTargetType;
@@ -114,6 +128,7 @@ int select_gr(int vlpTypes, int *vlpOriginType, int *vlpTargetType)
       {
           *vlpOriginType = 1;
           *vlpTargetType = 2;
+          *bulk_density_per_variant_for_norm = (N*1.0/variants)/V;
       }
       else
       {
@@ -140,6 +155,7 @@ int select_gr(int vlpTypes, int *vlpOriginType, int *vlpTargetType)
           cin >> crossTargetType;
           *vlpOriginType = crossOriginType;
           *vlpTargetType = crossTargetType;
+          *bulk_density_per_variant_for_norm = (N*1.0/variants)/V;
       }
       else
       {

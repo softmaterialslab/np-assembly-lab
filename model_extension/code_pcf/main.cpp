@@ -20,7 +20,7 @@ long double unitlength;
 
 // select g(r)
 // vlpTypes, vlpOriginType, vlpTargetType
-int select_gr(int, int*, int*);
+int select_gr(int, int*, int*, long double*, int, int, long double);
 
 // compute g(r)
 // stage, g(bin), samples, vlps, edge, vlpOrgTy, vlpTarTy, bw, rho_bulk.
@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
   //string grType;
   //int selfType, crossOriginType, crossTargetType;
   
-  int grSelection = select_gr(vlpTypes, &vlpOriginType, &vlpTargetType);
+  int grSelection = select_gr(vlpTypes, &vlpOriginType, &vlpTargetType, &bulk_density_per_variant_for_norm, total_vlp_number, vlpTypes, simulationBoxVolume);
   if (grSelection == 0) 
   {
       cout << "\nsomething is wrong--> check gr info...exiting..." << endl;
