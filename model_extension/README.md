@@ -10,7 +10,8 @@
 
 * todo 
 
-- "fix", "dump" names 
-- charge values mismatch? 
-- warning on more than one ke/atom compute? 
-- run longer (> 1m) to see steady state in PE, rep snap 
+   "fix", "dump" names   
+   charge values mismatch?   
+   warning on more than one ke/atom compute? 
+   run longer (> 1m) to see steady state in PE, rep snap
+
