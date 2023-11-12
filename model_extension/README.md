@@ -7,3 +7,9 @@
 * 540 vlps, 100x = 54000 linkers
 
 * thermo freq: 1000, dump vlp freq: 1000, dump all freq: 10000 produces 20 MB for vlp movie and 200 MB for all movie in a 1 mil run.
+
+* todo 
+- "fix", "dump" names
+- charge values mismatch?
+- warning on more than one ke/atom compute?
+- run longer (> 1m) to see steady state in PE, rep snap
