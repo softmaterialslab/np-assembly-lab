@@ -1,2 +1,0 @@
-2023.02.21: latest code to compute pcf for single comp
-2023.11.02: commit code, bin position centering issue fixed, normalization issue fixed, code extended to handle multiple components and self vs cross inputs
