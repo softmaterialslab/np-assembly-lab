@@ -5,3 +5,6 @@ clean:
 	
 dumpclean:
 	rm -f *.melt
+
+restartclean:
+	rm -f Restart*
