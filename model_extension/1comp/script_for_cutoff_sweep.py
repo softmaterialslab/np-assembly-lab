@@ -9,9 +9,11 @@ Calculations done for EEE2 Q=-2085e, q=45e. Cutoff parameter is |ue|<0.005kBT
 
 import numpy as np
 
+lb = 0.714 #Bjerrum length, in nm
+aux = np.sqrt(8*lb*0.6022*np.pi)    # the 0.6022 converts the unit of c from Molars to nm^-3
 
+    
 def yukawa(r, q1, q2, kappa, d1, d2):
-    lb = 0.714 #Bjerrum length, in nm
     aux1 = (q1/(1+kappa*(d1/2)))*np.exp(kappa*(d1/2))
     aux2 = (q2/(1+kappa*(d2/2)))*np.exp(kappa*(d2/2))
     ue = (1/r)*aux1*aux2*lb*np.exp(-kappa*r)
@@ -85,7 +87,7 @@ for j in range(len(VLPS)):
     VLP = VLPS[j]
     print(VLP)
     c = concs[j]
-    kappa = 3.287*np.sqrt(c)
+    kappa = aux*np.sqrt(c)
 
     for i in range(len(c)):
         salt = c[i]
