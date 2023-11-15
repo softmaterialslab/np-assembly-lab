@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --mail-user=vjadhao@iu.edu
+#SBATCH --mail-user=cfaccini@iu.edu
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=48
 #SBATCH --time=2:00:00
@@ -13,4 +13,4 @@
 module load lammps/29Oct20
 
 cd      $SLURM_SUBMIT_DIR
-time srun -n 48 lmp_mpi < in.lammps.template
+time srun -n 48 lmp_mpi < in.1comp.template
