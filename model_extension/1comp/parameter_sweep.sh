@@ -13,16 +13,8 @@ if [ "$USERVLP" = "EEE2" ]; then
   USERSIGMAHCRAW="5.15"
   for USERSALTCONC in 0.6 0.55 
   do
-  if [ "$USERSALTCONC" = 0.6 ]; then
-    echo $USERSALTCONC
-    USERVLPEScutoff="1.0563629291500578"
-    USERVLPLinkerEScutoff="0.6045365500835798"
-    USERLinkerEScutoff="0.16092519609103764"
-  elif [ "$USERSALTCONC" = 0.55 ]; then
-    USERVLPEScutoff="1.053505529124341"
-    USERVLPLinkerEScutoff="0.607036775106082"
-    USERLinkerEScutoff="0.1632468336119326"
-  fi  
+  #copy lines from python generator here:
+
   dir="$USERVLP"_c"$USERSALTCONC"
   cp -a template/ $dir
   cd $dir
@@ -42,15 +34,50 @@ elif [ "$USERVLP" = "E2" ]; then
   USERSIGMAHCRAW="4.75"
   for USERSALTCONC in 0.3 0.25
   do
-  if [ "$USERSALTCONC" = 0.3 ]; then
-    USERVLPEScutoff="1.0820795293815095"
-    USERVLPLinkerEScutoff="0.6290030378037803"
-    USERLinkerEScutoff="0.18271287128712868"
-  elif [ "$USERSALTCONC" = 0.25 ]; then
-    USERVLPEScutoff="1.0917232544683038"
-    USERVLPLinkerEScutoff="0.6372180628777162"
-    USERLinkerEScutoff="0.19003495885302812"
-  fi 
+  #copy lines from python generator here:
+  
+  dir="$USERVLP"_c"$USERSALTCONC"
+  cp -a template/ $dir
+  cd $dir
+    sed -i 's/USERVLPCHARGE/'$USERVLPCHARGE'/g' in.lammps.template
+    sed -i 's/USERSIGMAHCRAW/'$USERSIGMAHCRAW'/g' in.lammps.template
+    sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' in.lammps.template
+    sed -i 's/USERVLPEScutoff/'$USERVLPEScutoff'/g' in.lammps.template
+    sed -i 's/USERLinkerEScutoff/'$USERLinkerEScutoff'/g' in.lammps.template
+    sed -i 's/USERVLPLinkerEScutoff/'$USERVLPLinkerEScutoff'/g' in.lammps.template
+    sed -i 's/USERVLP/'$USERVLP'/g' assembly.pbs
+    sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' assembly.pbs
+    # sbatch assemby.pbs
+    cd ..
+  done
+elif [ "$USERVLP" = "Q2" ]; then
+  USERVLPCHARGE="-1080"
+  USERSIGMAHCRAW="4.45"
+  for USERSALTCONC in 0.3 0.25
+  do
+  #copy lines from python generator here:
+  
+  dir="$USERVLP"_c"$USERSALTCONC"
+  cp -a template/ $dir
+  cd $dir
+    sed -i 's/USERVLPCHARGE/'$USERVLPCHARGE'/g' in.lammps.template
+    sed -i 's/USERSIGMAHCRAW/'$USERSIGMAHCRAW'/g' in.lammps.template
+    sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' in.lammps.template
+    sed -i 's/USERVLPEScutoff/'$USERVLPEScutoff'/g' in.lammps.template
+    sed -i 's/USERLinkerEScutoff/'$USERLinkerEScutoff'/g' in.lammps.template
+    sed -i 's/USERVLPLinkerEScutoff/'$USERVLPLinkerEScutoff'/g' in.lammps.template
+    sed -i 's/USERVLP/'$USERVLP'/g' assembly.pbs
+    sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' assembly.pbs
+    # sbatch assemby.pbs
+    cd ..
+  done
+elif [ "$USERVLP" = "K2" ]; then
+  USERVLPCHARGE="-600"
+  USERSIGMAHCRAW="4.15"
+  for USERSALTCONC in 0.3 0.25
+  do
+  #copy lines from python generator here:
+  
   dir="$USERVLP"_c"$USERSALTCONC"
   cp -a template/ $dir
   cd $dir
