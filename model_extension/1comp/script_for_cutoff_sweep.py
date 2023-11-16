@@ -35,9 +35,9 @@ dd = 6.7 #dendrimer diameter, in nm
 #c = [0.6, 0.57, 0.55, 0.53, 0.5, 0.45, 0.4, 0.35, 0.32, 0.3, 0.28, 0.25, 0.2, 0.18, 0.16, 0.15, 0.14, 0.12, 0.1, 0.08, 0.075, 0.07, 0.06, 0.05, 0.04, 0.01]
 
 # EEE2 concentrations:
-c_EEE2 = [0.60, 0.57, 0.56, 0.55, 0.53, 0.50, 0.40, 0.20, 0.10, 0.04, 0.01]
+c_EEE2 = [0.52]#[0.60, 0.57, 0.56, 0.55, 0.53, 0.50, 0.40, 0.20, 0.10, 0.04, 0.01]
 # E2 concentrations:
-c_E2 = [0.30, 0.28, 0.25, 0.24, 0.22, 0.20, 0.18, 0.15, 0.10, 0.04, 0.01] 
+c_E2 = [0.23]#[0.30, 0.28, 0.25, 0.24, 0.22, 0.20, 0.18, 0.15, 0.10, 0.04, 0.01] 
 # Q2 concentrations:
 c_Q2 = [0.20, 0.17, 0.16, 0.15, 0.14, 0.12, 0.10, 0.06, 0.04, 0.01]
 # K2 concentrations:
@@ -58,8 +58,8 @@ def firstc(salt, VVes, Vdes, ddes):
     if [ "$USERSALTCONC" = {salt} ]; then
         echo $USERSALTCONC
         USERVLPEScutoff="{VVes}"
-        USERVLPLinkerEScutoff="{ddes}"
-        USERLinkerEScutoff="{Vdes}" '''
+        USERVLPLinkerEScutoff="{Vdes}"
+        USERLinkerEScutoff="{ddes}" '''
                
     return s
 
@@ -68,8 +68,8 @@ def allc(salt, VVes, Vdes, ddes):
     elif [ "$USERSALTCONC" = {salt} ]; then
         echo $USERSALTCONC
         USERVLPEScutoff="{VVes}"
-        USERVLPLinkerEScutoff="{ddes}"
-        USERLinkerEScutoff="{Vdes}"     '''
+        USERVLPLinkerEScutoff="{Vdes}"
+        USERLinkerEScutoff="{ddes}"     '''
                
     return s
 
