@@ -11,7 +11,7 @@
 * todo 
 
    "fix", "dump" names   
-   charge values mismatch?   
+   charge values mismatch?  this is indeed wrong in the new version, missing unit conversion.
    warning on more than one ke/atom compute?    
    run longer (> 1m) to see steady state in PE, rep snap
 
