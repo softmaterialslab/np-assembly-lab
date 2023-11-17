@@ -1,0 +1,84 @@
+     
+# 3D simulation of virus macroassembly
+
+units lj
+boundary p p p
+atom_style hybrid charge sphere
+neighbor	0.3	bin
+neigh_modify	every	1	delay	0	check	yes 
+## Create Simulation Box, Atoms ##
+#read_data	filename
+read_data	initCoords1comp.assembly
+
+## Group Atoms by Type ##
+group virus type	1
+group dend type	2
+
+## Defining Particle/Medium Properties ##
+mass	1	1
+mass	2	0.0029024	# relative mass of dendrimer to P22
+dielectric	78.54
+ 
+set	type	1	charge	-2.2916314522613133e+23	# qV_DLVO (in LJ units)    
+
+set	type	2	charge	2666.7593311755268	# qD_DLVO (in LJ units)
+
+## Ascribing Initial Velocities ##
+velocity	all	create	1.	4928459	rot	yes	dist	gaussian	units	box	# 1-kB*T,random seed,zero net ang.mom.,gauss from MB stats
+
+## Ascribing interparticle potentials: ##
+
+
+pair_style	hybrid/overlay	lj/expand	1.122462048309373	coul/debye	100.82960496326737	1.0756503793236465	# LJ_cut without delta, kappa, Global ES_cut
+    
+pair_coeff	1	1	lj/expand	1	1.	0 1.122462048309373	# epsilon, sigma_hc, delta_V-V, rcut_VV=2^(1/6) D/D
+pair_coeff	1	1	coul/debye	1.0756503793236465	# V-V ES_cut   
+    
+pair_coeff	1	2	lj/expand	1	0.08482142857142858	0.47500000000000003  0.09520883445481289   	# epsilon, sigma_hc, delta_V-D
+pair_coeff	1	2	coul/debye	0.6257884627748488	# V-D ES_cut
+  
+    
+pair_coeff	2	2	lj/expand	1	0.11964285714285713	0. 0.13429456649415714	# epsilon, sigma_dd=6.7nm/56nm, delta_D-D, delta_d-d, rcut_VV=2^(1/6) d/D
+pair_coeff	2	2	coul/debye	0.18271287128712868	# D-D ES_cut 
+pair_modify	shift	yes	# the additive e_LJ for repulsion-only 
+    
+
+## Ensemble Fixes (+ for output) ##
+variable	myTStep	equal	0.000025
+timestep	${myTStep}
+variable	myDStep	equal	1000
+fix	ens	all	nvt	temp	1.	1.	0.0025	# T_start, T_stop, T_damp=100*timestep
+
+## Define Computes for Output ##
+
+# compute	VirusPEperatom	virus	reduce	ave c_virusPotVec
+# compute	VirusKEperatom	virus	reduce	ave c_virusKeVec
+# compute	DendPEperatom	dend	reduce	ave c_dendPotVec
+# compute	DendKEperatom	dend	reduce	ave c_dendKeVec
+
+
+#print "OUTPUT COLUMNS: SIMULATION STEP NUMBER | TEMPERATURE | NP POTENTIAL ENERGY | SYSTEM VOLUME"
+
+#restart	500000	outfiles/assemblyRestart.*	# creates 5 restart files up to equilibration; can comment this
+#run	1500000    #run for 2.5 million without dumping anything
+
+## Defining Output Information ##
+dump	allV	all	custom	${myDStep}	outfiles/dump_all.melt	id	type	x	y	z	# c_atomPot	c_atomKin
+dump	posD	virus	custom	${myDStep}	outfiles/dump_V.melt	id	type	x	y	z	# c_atomPot	c_atomKin
+
+
+#thermo_style	custom	step	temp	c_myVirusT	c_myDendT	c_myVirusPot	c_myDendPot	etotal	ke	pe	vol	#press
+thermo_style	custom	step etotal  pe  ke 
+thermo_modify norm no
+thermo	1000
+
+restart	500000	outfiles/assemblyRestart.*	# creates restart files post equilibration; keep this
+run	1000000
+
+unfix	ens
+undump	posD
+undump  allV
+#undump	vOnlyD
+
+
+    
