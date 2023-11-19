@@ -1,0 +1,19 @@
+# see 1comp template file for the new structure and automation
+# see past (ERROR_) lammps.template file for the old structure
+
+# 3D simulation of VLP1 + VLP2 + Linker system
+units           lj
+boundary        p       p       p
+atom_style      hybrid  charge  sphere
+neighbor        0.3     bin
+neigh_modify    every   1       delay   0       check   yes
+
+## Create Simulation Box, Atoms ##
+read_data       initCoords2comp.assembly
+
+## Group Atoms by Type ##
+group   VLP1    type    1
+group   VLP2    type    2
+group   Linker  type    3
+group   AllVLPS union   VLP1    VLP2    # creates a group with all VLPs
+
