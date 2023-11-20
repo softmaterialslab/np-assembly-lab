@@ -87,7 +87,7 @@ if [ "$USERVLP" = "EEE2" ]; then
 elif [ "$USERVLP" = "E2" ]; then
   echo "its E2!"
   USERVLPCHARGE="-1500"
-  USERSIGMAHCRAW="4.7"
+  USERSIGMAHCRAW="5"
   for USERSALTCONC in 0.3 0.28 0.25 0.22 0.2 0.18 0.15 0.1 0.04 0.01
   do
   #copy E2 cutoffs here
