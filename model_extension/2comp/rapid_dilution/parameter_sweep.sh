@@ -1,17 +1,20 @@
 #!/bin/bash
 
-# EEE2 concentrations:  0.6 0.57 0.55 0.53 0.5 0.4 0.2 0.1 0.04 0.01
-# E2 concentrations:    0.3 0.28 0.25 0.22 0.2 0.18 0.15 0.1 0.04 0.01 
-# Q2 concentrations:    0.2 0.16 0.15 0.14 0.12 0.1 0.08 0.06 0.04 0.01
-# K2 concentrations:    0.2 0.15 0.12 0.1 0.08 0.07 0.06 0.05 0.04 0.01
+# EEE2+E2 concentrations:  0.6 0.57 0.55 0.5 0.4 0.3 0.27 0.245 0.1 0.04 
+# E2+Q2 concentrations:    0.3 0.275 0.245 0.20 0.18 0.16 0.125 0.10 0.04 
+# E2+K2 concentrations:    0.3 0.275 0.245 0.20 0.15 0.125 0.10 0.075 0.04
 
-for USERVLP in "E2" #"EEE2" "E2"
+for TWOCOMP in "EEE2E2" 
 do
-if [ "$USERVLP" = "EEE2" ]; then
-  echo "its EEE2!"
-  USERVLPCHARGE="-2085"
-  USERSIGMAHCRAW="5.15"
-  for USERSALTCONC in 0.6 0.57 0.55 0.53 0.5 0.4 0.2 0.1 0.04 0.01 
+if [ "$TWOCOMP" = "EEE2E2" ]; then
+  echo "its EEE2 and E2!"
+  USERVLP1="EEE2"
+  USERVLP2="E2"
+  USERVLP1CHARGE="-2122"
+  USERSIGMAHC1RAW="5.16"
+  USERVLP2CHARGE="-1500"
+  USERSIGMAHC2RAW="5.16"
+  for USERSALTCONC in 0.6 0.57 0.55 0.5 0.4 0.3 0.27 0.245 0.1 0.04 
   do        
     if [ "$USERSALTCONC" = 0.6 ]; then
         echo $USERSALTCONC
@@ -74,25 +77,32 @@ if [ "$USERVLP" = "EEE2" ]; then
         USERVLPLinkerEScutoff="1.0627920792079206"
         USERLinkerEScutoff="0.5372090619776263"     
     fi  
-  dir="$USERVLP"_c"$USERSALTCONC"
+  dir="$USERVLP1"_"$USERVLP2"_c"$USERSALTCONC"
   cp -a template/ $dir
   cd $dir
-    sed -i 's/USERVLPCHARGE/'$USERVLPCHARGE'/g' in.1comp.template
-    sed -i 's/USERSIGMAHCRAW/'$USERSIGMAHCRAW'/g' in.1comp.template
-    sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' in.1comp.template
-    sed -i 's/USERVLPEScutoff/'$USERVLPEScutoff'/g' in.1comp.template
-    sed -i 's/USERLinkerEScutoff/'$USERLinkerEScutoff'/g' in.1comp.template
-    sed -i 's/USERVLPLinkerEScutoff/'$USERVLPLinkerEScutoff'/g' in.1comp.template
-    sed -i 's/USERVLP/'$USERVLP'/g' assembly.pbs
+    sed -i 's/USERVLP1CHARGE/'$USERVLP1CHARGE'/g' in.2comp.template
+    sed -i 's/USERVLP2CHARGE/'$USERVLP2CHARGE'/g' in.2comp.template
+    sed -i 's/USERSIGMAHC1RAW/'$USERSIGMAHC1RAW'/g' in.2comp.template
+    sed -i 's/USERSIGMAHC2RAW/'$USERSIGMAHC2RAW'/g' in.2comp.template
+    sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' in.2comp.template
+    sed -i 's/USERVLPEScutoff/'$USERVLPEScutoff'/g' in.2comp.template
+    sed -i 's/USERLinkerEScutoff/'$USERLinkerEScutoff'/g' in.2comp.template
+    sed -i 's/USERVLPLinkerEScutoff/'$USERVLPLinkerEScutoff'/g' in.2comp.template
+    sed -i 's/USERVLP1/'$USERVLP1'/g' assembly.pbs
+    sed -i 's/USERVLP2/'$USERVLP2'/g' assembly.pbs
     sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' assembly.pbs
-    sbatch assembly.pbs
+    #sbatch assembly.pbs
     cd ..
   done
-elif [ "$USERVLP" = "E2" ]; then
-  echo "its E2!"
-  USERVLPCHARGE="-1500"
-  USERSIGMAHCRAW="4.75"
-  for USERSALTCONC in 0.3 #0.24 # 0.3 0.28 0.25 0.22 0.2 0.18 0.15 0.1 0.04 0.01 
+elif [ "$TWOCOMP" = "E2Q2" ]; then
+  echo "its E2 and Q2!"
+  USERVLP1="E2"
+  USERVLP2="Q2"
+  USERVLP1CHARGE="-1500"
+  USERSIGMAHC1RAW="5.16"
+  USERVLP2CHARGE="-1165"
+  USERSIGMAHC2RAW="4"
+  for USERSALTCONC in 0.3 0.275 0.245 0.20 0.18 0.16 0.125 0.10 0.04 
   do
         
     if [ "$USERSALTCONC" = 0.3 ]; then
@@ -156,24 +166,32 @@ elif [ "$USERVLP" = "E2" ]; then
         USERVLPLinkerEScutoff="1.0627920792079206"
         USERLinkerEScutoff="0.5372090619776263"     
     fi      
-  dir="$USERVLP"_c"$USERSALTCONC"
+  dir="$USERVLP1"_"$USERVLP2"_c"$USERSALTCONC"
   cp -a template/ $dir
   cd $dir
-    sed -i 's/USERVLPCHARGE/'$USERVLPCHARGE'/g' in.1comp.template
-    sed -i 's/USERSIGMAHCRAW/'$USERSIGMAHCRAW'/g' in.1comp.template
-    sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' in.1comp.template
-    sed -i 's/USERVLPEScutoff/'$USERVLPEScutoff'/g' in.1comp.template
-    sed -i 's/USERLinkerEScutoff/'$USERLinkerEScutoff'/g' in.1comp.template
-    sed -i 's/USERVLPLinkerEScutoff/'$USERVLPLinkerEScutoff'/g' in.1comp.template
-    sed -i 's/USERVLP/'$USERVLP'/g' assembly.pbs
+    sed -i 's/USERVLP1CHARGE/'$USERVLP1CHARGE'/g' in.2comp.template
+    sed -i 's/USERVLP2CHARGE/'$USERVLP2CHARGE'/g' in.2comp.template
+    sed -i 's/USERSIGMAHC1RAW/'$USERSIGMAHC1RAW'/g' in.2comp.template
+    sed -i 's/USERSIGMAHC2RAW/'$USERSIGMAHC2RAW'/g' in.2comp.template
+    sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' in.2comp.template
+    sed -i 's/USERVLPEScutoff/'$USERVLPEScutoff'/g' in.2comp.template
+    sed -i 's/USERLinkerEScutoff/'$USERLinkerEScutoff'/g' in.2comp.template
+    sed -i 's/USERVLPLinkerEScutoff/'$USERVLPLinkerEScutoff'/g' in.2comp.template
+    sed -i 's/USERVLP1/'$USERVLP1'/g' assembly.pbs
+    sed -i 's/USERVLP2/'$USERVLP2'/g' assembly.pbs
     sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' assembly.pbs
     sbatch assembly.pbs
     cd ..
   done
-elif [ "$USERVLP" = "Q2" ]; then
-  USERVLPCHARGE="-1080"
-  USERSIGMAHCRAW="4.45"
-  for USERSALTCONC in 0.2 0.16 0.15 0.14 0.12 0.1 0.08 0.06 0.04 0.01
+elif [ "$TWOCOMP" = "E2K2" ]; then
+  echo "its E2 and K2!"
+  USERVLP1CHARGE="-1500"
+  USERSIGMAHC1RAW="5.16"
+  USERVLP2CHARGE="-622"
+  USERSIGMAHC2RAW="4"
+  USERVLP1="E2"
+  USERVLP2="K2"
+  for USERSALTCONC in 0.3 0.275 0.245 0.20 0.15 0.125 0.10 0.075 0.04
   do
     if [ "$USERSALTCONC" = 0.2 ]; then
         echo $USERSALTCONC
@@ -226,91 +244,19 @@ elif [ "$USERVLP" = "Q2" ]; then
         USERVLPLinkerEScutoff="1.0627920792079206"
         USERLinkerEScutoff="0.5372090619776263"     
     fi      
-  dir="$USERVLP"_c"$USERSALTCONC"
+  dir="$USERVLP1"_"$USERVLP2"_c"$USERSALTCONC"
   cp -a template/ $dir
   cd $dir
-    sed -i 's/USERVLPCHARGE/'$USERVLPCHARGE'/g' in.1comp.template
-    sed -i 's/USERSIGMAHCRAW/'$USERSIGMAHCRAW'/g' in.1comp.template
-    sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' in.1comp.template
-    sed -i 's/USERVLPEScutoff/'$USERVLPEScutoff'/g' in.1comp.template
-    sed -i 's/USERLinkerEScutoff/'$USERLinkerEScutoff'/g' in.1comp.template
-    sed -i 's/USERVLPLinkerEScutoff/'$USERVLPLinkerEScutoff'/g' in.1comp.template
-    sed -i 's/USERVLP/'$USERVLP'/g' assembly.pbs
-    sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' assembly.pbs
-    sbatch assembly.pbs
-    cd ..
-  done
-elif [ "$USERVLP" = "K2" ]; then
-  USERVLPCHARGE="-600"
-  USERSIGMAHCRAW="4.15"
-  for USERSALTCONC in 0.2 0.15 0.12 0.1 0.08 0.07 0.06 0.05 0.04 0.01
-  do
-    if [ "$USERSALTCONC" = 0.2 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.1049387295872444"
-        USERVLPLinkerEScutoff="0.6484690754789764"
-        USERLinkerEScutoff="0.1998572714414298" 
-    elif [ "$USERSALTCONC" = 0.15 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.1249405297672623"
-        USERVLPLinkerEScutoff="0.6656134756332774"
-        USERLinkerEScutoff="0.21468003407483605"     
-    elif [ "$USERSALTCONC" = 0.12 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.1427992799279927"
-        USERVLPLinkerEScutoff="0.6807934132698984"
-        USERLinkerEScutoff="0.2277169216921692"     
-    elif [ "$USERSALTCONC" = 0.1 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.1592293300758647"
-        USERVLPLinkerEScutoff="0.694723238395268"
-        USERLinkerEScutoff="0.23968228429985852"     
-    elif [ "$USERSALTCONC" = 0.08 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.181731355278385"
-        USERVLPLinkerEScutoff="0.7138321010672495"
-        USERLinkerEScutoff="0.2557551594445159"     
-    elif [ "$USERSALTCONC" = 0.75 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.046540616561656"
-        USERVLPLinkerEScutoff="0.5984645750289314"
-        USERLinkerEScutoff="0.15556757104281854"     
-    elif [ "$USERSALTCONC" = 0.07 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.1967327054133985"
-        USERVLPLinkerEScutoff="0.7263332261797607"
-        USERLinkerEScutoff="0.2664704095409541"     
-    elif [ "$USERSALTCONC" = 0.06 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.2153058055805581"
-        USERVLPLinkerEScutoff="0.7420489263212035"
-        USERLinkerEScutoff="0.2796858846598945"     
-    elif [ "$USERSALTCONC" = 0.05 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.2397722933007587"
-        USERVLPLinkerEScutoff="0.7625864890060434"
-        USERLinkerEScutoff="0.2966516973125884"     
-    elif [ "$USERSALTCONC" = 0.04 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.2729895685997172"
-        USERVLPLinkerEScutoff="0.7904461392567826"
-        USERLinkerEScutoff="0.3196894850199306"     
-    elif [ "$USERSALTCONC" = 0.01 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.6031978590716214"
-        USERVLPLinkerEScutoff="1.0627920792079206"
-        USERLinkerEScutoff="0.5372090619776263"     
-    fi    
-  dir="$USERVLP"_c"$USERSALTCONC"
-  cp -a template/ $dir
-  cd $dir
-    sed -i 's/USERVLPCHARGE/'$USERVLPCHARGE'/g' in.1comp.template
-    sed -i 's/USERSIGMAHCRAW/'$USERSIGMAHCRAW'/g' in.1comp.template
-    sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' in.1comp.template
-    sed -i 's/USERVLPEScutoff/'$USERVLPEScutoff'/g' in.1comp.template
-    sed -i 's/USERLinkerEScutoff/'$USERLinkerEScutoff'/g' in.1comp.template
-    sed -i 's/USERVLPLinkerEScutoff/'$USERVLPLinkerEScutoff'/g' in.1comp.template
-    sed -i 's/USERVLP/'$USERVLP'/g' assembly.pbs
+    sed -i 's/USERVLP1CHARGE/'$USERVLP1CHARGE'/g' in.2comp.template
+    sed -i 's/USERVLP2CHARGE/'$USERVLP2CHARGE'/g' in.2comp.template
+    sed -i 's/USERSIGMAHC1RAW/'$USERSIGMAHC1RAW'/g' in.2comp.template
+    sed -i 's/USERSIGMAHC2RAW/'$USERSIGMAHC2RAW'/g' in.2comp.template
+    sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' in.2comp.template
+    sed -i 's/USERVLPEScutoff/'$USERVLPEScutoff'/g' in.2comp.template
+    sed -i 's/USERLinkerEScutoff/'$USERLinkerEScutoff'/g' in.2comp.template
+    sed -i 's/USERVLPLinkerEScutoff/'$USERVLPLinkerEScutoff'/g' in.2comp.template
+    sed -i 's/USERVLP1/'$USERVLP1'/g' assembly.pbs
+    sed -i 's/USERVLP2/'$USERVLP2'/g' assembly.pbs
     sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' assembly.pbs
     sbatch assembly.pbs
     cd ..
