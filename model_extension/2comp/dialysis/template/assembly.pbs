@@ -6,7 +6,7 @@
 #SBATCH -A r00312
 #SBATCH --partition=general
 #SBATCH --mail-type=FAIL,BEGIN,END
-#SBATCH --job-name=USERVLP1_USERVLP2_USERSALTCONC
+#SBATCH --job-name=dialysis_USERVLP1_USERVLP2_USERSALTCONC
 #SBATCH --output=out.log
 #SBATCH --error=err.log
 

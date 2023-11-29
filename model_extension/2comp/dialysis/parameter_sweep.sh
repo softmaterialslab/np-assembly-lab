@@ -6,13 +6,13 @@
 
 echo "--- warning! this is the dialysis approach ---"
 echo "will create and submit 1 job at desired low salt conc. (argument 2) starting from a high salt (argument 1) equilibrated state"
-echo "ex: sh parameter_sweep.sh 0.6 0.57 will take the 0.6 equilibrated state (your job to ensure it is the latest) and run at 0.57"
-echo "you need a RestartcHIGHSALT.* file in the folder with the high salt"
+echo "ex: sh parameter_sweep.sh 0.6 0.57 will take the 0.6 equilibrated state and run at 0.57"
+echo "you need a RestartcHIGHSALT.* file in the folder with the high salt. LAMMPS auto selects the latest restart in read_restart"
 echo "copy the highest salt folder from instant run in this current folder"
 echo "edit the sweep script for multiple low salt conc jobs"
 sleep 5
 
-for TWOCOMP in "EEE2E2" 
+for TWOCOMP in "E2K2" 
 do
 if [ "$TWOCOMP" = "EEE2E2" ]; then
   echo "its EEE2 and E2!"
@@ -89,7 +89,7 @@ if [ "$TWOCOMP" = "EEE2E2" ]; then
   dir="$USERVLP1"_"$USERVLP2"_c"$USERSALTCONC"
   restartdir="$USERVLP1"_"$USERVLP2"_c"$USERHIGHSALT"
   cp -a template/ $dir
-  cp $restartdir/Restartc${USERHIGHSALT}.10000000 $dir/ # restart name should match the name in the input script within template/
+  cp $restartdir/Restartc${USERHIGHSALT}.* $dir/ # restart name should match the name in the input script within template/
   cd $dir
     sed -i 's/USERHIGHSALT/'$USERHIGHSALT'/g' in.2comp.template
     sed -i 's/USERVLP1CHARGE/'$USERVLP1CHARGE'/g' in.2comp.template
@@ -182,7 +182,7 @@ elif [ "$TWOCOMP" = "E2Q2" ]; then
   dir="$USERVLP1"_"$USERVLP2"_c"$USERSALTCONC"
   restartdir="$USERVLP1"_"$USERVLP2"_c"$USERHIGHSALT"
   cp -a template/ $dir
-  cp $restartdir/Restartc${USERHIGHSALT}.10000000 $dir/ # restart name should match the name in the input script within template/
+  cp $restartdir/Restartc${USERHIGHSALT}.* $dir/ # restart name should match the name in the input script within template/
   cd $dir
     sed -i 's/USERHIGHSALT/'$USERHIGHSALT'/g' in.2comp.template
     sed -i 's/USERVLP1CHARGE/'$USERVLP1CHARGE'/g' in.2comp.template
@@ -264,7 +264,7 @@ elif [ "$TWOCOMP" = "E2K2" ]; then
   dir="$USERVLP1"_"$USERVLP2"_c"$USERSALTCONC"
   restartdir="$USERVLP1"_"$USERVLP2"_c"$USERHIGHSALT"
   cp -a template/ $dir
-  cp $restartdir/Restartc${USERHIGHSALT}.10000000 $dir/ # restart name should match the name in the input script within template/
+  cp $restartdir/Restartc${USERHIGHSALT}.* $dir/ # restart name should match the name in the input script within template/
   cd $dir
     sed -i 's/USERHIGHSALT/'$USERHIGHSALT'/g' in.2comp.template
     sed -i 's/USERVLP1CHARGE/'$USERVLP1CHARGE'/g' in.2comp.template

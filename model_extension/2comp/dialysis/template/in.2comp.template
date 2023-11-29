@@ -50,9 +50,9 @@ variable VLP2LinkerLJcutoff	equal v_SIGMAHC2*(2^(1.0/6.0))	# 2^(1/6) times the V
 variable DELTA1		equal 	(1+v_LinkerDiameter)*0.5-v_SIGMAHC1	# in reduced units
 variable DELTA2		equal 	(1+v_LinkerDiameter)*0.5-v_SIGMAHC2	# in reduced units
 variable KAPPA		equal 	v_VLPDiameterRAW*sqrt(8*v_lB*v_SALTCONC*PI*0.6022141)	# in reduced units of (1 / vlp diameter)	
-variable VLP1ChargeDLVO	equal	(v_VLP1Charge*exp(v_KAPPA*0.5)/(1+v_KAPPA*0.5))*(1.000676522)	# KAPPA is already in reduced units of the simulation
-variable VLP2ChargeDLVO	equal	(v_VLP2Charge*exp(v_KAPPA*0.5)/(1+v_KAPPA*0.5))*(1.000676522)	# KAPPA is already in reduced units of the simulation
-variable LinkerChargeDLVO equal (v_LinkerCharge*exp(v_KAPPA*v_LinkerDiameter*0.5)/(1+v_KAPPA*v_LinkerDiameter*0.5))*(1.000676522) # both KAPPA and Linker diameter are in reduced units
+variable VLP1ChargeDLVO	equal	(v_VLP1Charge*exp(v_KAPPA*0.5)/(1+v_KAPPA*0.5))*(1.00065763)	# KAPPA is already in reduced units of the simulation
+variable VLP2ChargeDLVO	equal	(v_VLP2Charge*exp(v_KAPPA*0.5)/(1+v_KAPPA*0.5))*(1.00065763)	# KAPPA is already in reduced units of the simulation
+variable LinkerChargeDLVO equal (v_LinkerCharge*exp(v_KAPPA*v_LinkerDiameter*0.5)/(1+v_KAPPA*v_LinkerDiameter*0.5))*(1.00065763) # both KAPPA and Linker diameter are in reduced units
 
 print	"***** Linker diameter = ${LinkerDiameter} *****"
 print	"***** sigmahc1 = ${SIGMAHC1} *****"
