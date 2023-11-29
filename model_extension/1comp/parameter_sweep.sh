@@ -5,90 +5,13 @@
 # Q2 concentrations:    0.2 0.16 0.15 0.14 0.12 0.1 0.08 0.06 0.04 0.01
 # K2 concentrations:    0.2 0.15 0.12 0.1 0.08 0.07 0.06 0.05 0.04 0.01
 
-for USERVLP in "EEE2" #"E2"
+for USERVLP in "E2" #"EEE2" #"E2"
 do
-if [ "$USERVLP" = "EEE2" ]; then
-  echo "its EEE2!"
-  USERVLPCHARGE="-2122"
-  USERSIGMAHCRAW="5.1"
-  for USERSALTCONC in 0.6 0.57 0.56 0.55 0.53 0.5 0.4 0.2 0.1 0.04 0.01. 
-  do        
-  #copy EEE2 cutoffs here
-    if [ "$USERSALTCONC" = 0.6 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.0536841166259483"
-        USERVLPLinkerEScutoff="0.6045365500835798"
-        USERLinkerEScutoff="0.16092519609103764" 
-    elif [ "$USERSALTCONC" = 0.57 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.0554699916420212"
-        USERVLPLinkerEScutoff="0.6061438375980455"
-        USERLinkerEScutoff="0.1621753086022888"     
-    elif [ "$USERSALTCONC" = 0.56 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.056005754146843"
-        USERVLPLinkerEScutoff="0.6066796001028674"
-        USERLinkerEScutoff="0.1627110711071107"     
-    elif [ "$USERSALTCONC" = 0.55 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.0567201041532723"
-        USERVLPLinkerEScutoff="0.6072153626076892"
-        USERLinkerEScutoff="0.1632468336119326"     
-    elif [ "$USERSALTCONC" = 0.53 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.0579702166645235"
-        USERVLPLinkerEScutoff="0.6082868876173331"
-        USERLinkerEScutoff="0.1641397711199691"     
-    elif [ "$USERSALTCONC" = 0.5 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.0601132666838111"
-        USERVLPLinkerEScutoff="0.6100727626334062"
-        USERLinkerEScutoff="0.16574705863443487"     
-    elif [ "$USERSALTCONC" = 0.4 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.0690426417641763"
-        USERVLPLinkerEScutoff="0.6177520252025201"
-        USERLinkerEScutoff="0.17253338369551238"     
-    elif [ "$USERSALTCONC" = 0.2 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.1054744920920663"
-        USERVLPLinkerEScutoff="0.648826250482191"
-        USERLinkerEScutoff="0.1998572714414298"     
-    elif [ "$USERSALTCONC" = 0.1 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.1597650925806866"
-        USERVLPLinkerEScutoff="0.6949018258968753"
-        USERLinkerEScutoff="0.23968228429985852"     
-    elif [ "$USERSALTCONC" = 0.04 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.2738825061077537"
-        USERVLPLinkerEScutoff="0.7909819017616047"
-        USERLinkerEScutoff="0.3196894850199306"     
-    elif [ "$USERSALTCONC" = 0.01 ]; then
-        echo $USERSALTCONC
-        USERVLPEScutoff="1.6051623215893016"
-        USERVLPLinkerEScutoff="1.0638636042175647"
-        USERLinkerEScutoff="0.5372090619776263"     
-    fi     
-  dir="$USERVLP"_c"$USERSALTCONC"
-  cp -a template/ $dir
-  cd $dir
-    sed -i 's/USERVLPCHARGE/'$USERVLPCHARGE'/g' in.1comp.template
-    sed -i 's/USERSIGMAHCRAW/'$USERSIGMAHCRAW'/g' in.1comp.template
-    sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' in.1comp.template
-    sed -i 's/USERVLPEScutoff/'$USERVLPEScutoff'/g' in.1comp.template
-    sed -i 's/USERLinkerEScutoff/'$USERLinkerEScutoff'/g' in.1comp.template
-    sed -i 's/USERVLPLinkerEScutoff/'$USERVLPLinkerEScutoff'/g' in.1comp.template
-    sed -i 's/USERVLP/'$USERVLP'/g' assembly.pbs
-    sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' assembly.pbs
-    sbatch assembly.pbs
-    cd ..
-  done
-elif [ "$USERVLP" = "E2" ]; then
+if [ "$USERVLP" = "E2" ]; then
   echo "its E2!"
   USERVLPCHARGE="-1500"
-  USERSIGMAHCRAW="5"
-  for USERSALTCONC in 0.3 0.28 0.25 0.22 0.2 0.18 0.15 0.1 0.04 0.01
+  USERSIGMAHCRAW="5.16"
+  for USERSALTCONC in 0.255 #0.3 0.28 0.27 0.26 0.25 0.245 0.24 0.22 0.2 0.18 0.15 0.1 0.04 0.01
   do
   #copy E2 cutoffs here
     if [ "$USERSALTCONC" = 0.3 ]; then
@@ -100,17 +23,42 @@ elif [ "$USERVLP" = "E2" ]; then
         echo $USERSALTCONC
         USERVLPEScutoff="1.0860084544168702"
         USERVLPLinkerEScutoff="0.6320390253311045"
-        USERLinkerEScutoff="0.18539168381123824"     
+        USERLinkerEScutoff="0.18539168381123824" 
+    elif [ "$USERSALTCONC" = 0.27 ]; then
+        echo $USERSALTCONC
+        USERVLPEScutoff="1.0877943294329433"
+        USERVLPLinkerEScutoff="0.6338249003471775"
+        USERLinkerEScutoff="0.1868203838240967"     
+    elif [ "$USERSALTCONC" = 0.26 ]; then
+        echo $USERSALTCONC
+        USERVLPEScutoff="1.089937379452231"
+        USERVLPLinkerEScutoff="0.6354321878616432"
+        USERLinkerEScutoff="0.18842767133856242" 
+    elif [ "$USERSALTCONC" = 0.255 ]; then
+        echo $USERSALTCONC
+        USERVLPEScutoff="1.0910089044618747"
+        USERVLPLinkerEScutoff="0.636503712871287"
+        USERLinkerEScutoff="0.18914202134499164"        
     elif [ "$USERSALTCONC" = 0.25 ]; then
         echo $USERSALTCONC
         USERVLPEScutoff="1.0920804294715185"
         USERVLPLinkerEScutoff="0.6373966503793236"
-        USERLinkerEScutoff="0.19003495885302812"     
+        USERLinkerEScutoff="0.19003495885302812" 
+    elif [ "$USERSALTCONC" = 0.245 ]; then
+        echo $USERSALTCONC
+        USERVLPEScutoff="1.0931519544811623"
+        USERVLPLinkerEScutoff="0.6382895878873601"
+        USERLinkerEScutoff="0.19074930885945737"       
     elif [ "$USERSALTCONC" = 0.24 ]; then
         echo $USERSALTCONC
         USERVLPEScutoff="1.0944020669924135"
         USERVLPLinkerEScutoff="0.6393611128970039"
-        USERLinkerEScutoff="0.19164224636749386"     
+        USERLinkerEScutoff="0.19164224636749386" 
+    elif [ "$USERSALTCONC" = 0.23 ]; then
+        echo $USERSALTCONC
+        USERVLPEScutoff="1.0969022920149156"
+        USERVLPLinkerEScutoff="0.6415041629162915"
+        USERLinkerEScutoff="0.19360670888517423"     
     elif [ "$USERSALTCONC" = 0.22 ]; then
         echo $USERSALTCONC
         USERVLPEScutoff="1.0995811045390254"
