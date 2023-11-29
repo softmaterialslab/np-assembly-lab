@@ -9,6 +9,7 @@ Calculations done for EEE2 Q=-2085e, q=45e. Cutoff parameter is |ue|<0.005kBT
 
 import numpy as np
 import math
+from scipy.ndimage import gaussian_filter1d
 
 lb = 0.714 #Bjerrum length, in nm
 aux = np.sqrt(8*lb*0.6022*np.pi)    # the 0.6022 converts the unit of c from Molars to nm^-3
@@ -43,7 +44,8 @@ r = np.linspace(0.001, 100, 10000)
 qd = 45  #dendrimer charge, units of e
 Qv = -2122  #VLP charge, units of e
 
-QVLP = [-2122, -1500, -1165, -631]
+QVLP = [-2122, -1500, -1165, -622]
+sigmaVLP = [5.16, 5.16, 3.35, 4.78]
 
 Dv = 56 #VLP diameter, in nm
 dd = 6.7 #dendrimer diameter, in nm
@@ -52,13 +54,13 @@ dd = 6.7 #dendrimer diameter, in nm
 #c = [0.6, 0.57, 0.55, 0.53, 0.5, 0.45, 0.4, 0.35, 0.32, 0.3, 0.28, 0.25, 0.2, 0.18, 0.16, 0.15, 0.14, 0.12, 0.1, 0.08, 0.075, 0.07, 0.06, 0.05, 0.04, 0.01]
 
 # EEE2 concentrations:
-c_EEE2 = [0.60, 0.57, 0.56, 0.55, 0.53, 0.50, 0.40, 0.20, 0.10, 0.04, 0.01]
+c_EEE2 = [0.6, 0.57, 0.55, 0.54, 0.5, 0.4, 0.35, 0.325, 0.31, 0.3, 0.27, 0.245, 0.1, 0.04]
 # E2 concentrations:
-c_E2 = [0.30, 0.28, 0.25, 0.24, 0.22, 0.20, 0.18, 0.15, 0.10, 0.04, 0.01] 
+c_E2 = [0.6, 0.57, 0.55, 0.54, 0.5, 0.4, 0.35, 0.325, 0.31,  0.3, 0.275, 0.27, 0.245, 0.20, 0.18, 0.16, 0.15, 0.125, 0.1, 0.075, 0.04] 
 # Q2 concentrations:
-c_Q2 = [0.20, 0.17, 0.16, 0.15, 0.14, 0.12, 0.10, 0.06, 0.04, 0.01]
+c_Q2 = [0.3, 0.275, 0.26, 0.245, 0.20, 0.19, 0.18, 0.16, 0.125, 0.1, 0.04 ]
 # K2 concentrations:
-c_K2 = [0.20, 0.15, 0.12, 0.10, 0.08, 0.75, 0.07, 0.06, 0.05, 0.04, 0.01]
+c_K2 = [0.3, 0.275, 0.245, 0.20, 0.15, 0.13, 0.125, 0.1, 0.075, 0.04]
 
 concs = [c_EEE2, c_E2, c_Q2, c_K2]
 
@@ -66,7 +68,13 @@ VLPS = ['EEE2', 'E2', 'Q2', 'K2']
 
 def header():
     s = '''
-    #copy folowing lines to the sweep parameter file:
+    #copy following lines to the sweep parameter file:
+        '''
+    return s
+
+def header2(Q, sigma):
+    s = f'''
+    #unet minimums between V-d for {Q} with sigma={sigma} nm: \n
         '''
     return s
 
@@ -90,55 +98,39 @@ def allc(salt, VVes, Vdes, ddes):
                
     return s
 
+def tablemins(salt, closest):
+    s = f''' 
+    {salt}     {closest} \n '''
+    return s
+
 def finish():
     s = '''
     fi    '''
     return s
 
-def getmins(Q, c, sigmahc):
-   kappa = 3.287*np.sqrt(c) 
-   ue12, re = yukawa(r, Q, qd, kappa, Dv, dd)
-   rclosest_raw = np.zeros(len(sigmahc))
-   umin = np.zeros(len(sigmahc))
-   
-   
-   for i in range(len(sigmahc)):
-        sig = sigmahc[i]
-        ulj12, rcut12, uljcut12 = lj1(r, sig, D, dd)
-
-        delta12 = (D + dd)/2 - sig
-        d12_ru = delta12/D
-
-        unet12 = ue12 + ulj12
-        closest = np.min(unet12)
-        #print(sig, closest, rcut12 )
-        val_closest = np.where(unet12==closest)
-        index = val_closest[0]
-        rc = r[index[0]]
-    
-        rclosest_raw[i] = rc
-        umin[i] = closest
-
-   rclosest = gaussian_filter1d(rclosest_raw, sigma=5)
-   return rclosest, umin
 
 cutoffs_EEE2 = header()
-mins_EEE2 = header()
+mins_EEE2 = header2('EEE2', sigmaVLP[0])
 cutoffs_E2 = header()
-mins_E2 = header()
+mins_E2 = header2('E2', sigmaVLP[1])
 cutoffs_Q2 = header()
-mins_Q2 = header()
+mins_Q2 = header2('Q2', sigmaVLP[2])
 cutoffs_K2 = header()
-mins_K2 = header()
+mins_K2 = header2('K2', sigmaVLP[3])
 
 for j in range(len(VLPS)):
     VLP = VLPS[j]
-    print(VLP)
+    Q = QVLP[j]
+    sigma = sigmaVLP[j]
+    print(VLP, Q, sigma)
     c = concs[j]
     kappa = aux*np.sqrt(c)
+    
+    ulj, rcut, uljcut = lj1(r, sigma, Dv, dd)
 
     for i in range(len(c)):
         salt = c[i]
+        # print(salt)
         kappa1 = kappa[i]
         ue_VV = yukawa(r, Qv, Qv, kappa1, Dv, Dv)
         ue_Vd = yukawa(r, Qv, qd, kappa1, Dv, dd)
@@ -158,22 +150,31 @@ for j in range(len(VLPS)):
         Vdes = re12/Dv
         ddes = re22/Dv
         
-        if j == 0:        
+        ue_alt = yukawa(r, Q, qd, kappa1, Dv, dd)
+        unet = ue_alt + ulj
+        closest = np.min(unet)
+        print(salt, closest)
+        
+        if j == 0:    
+            mins_EEE2+=tablemins(salt, closest)
             if i == 0:
                 cutoffs_EEE2+= firstc(salt, VVes, Vdes, ddes)
             else:
                 cutoffs_EEE2+= allc(salt, VVes, Vdes, ddes)
         if j == 1:
+            mins_E2+=tablemins(salt, closest)
             if i == 0:
                 cutoffs_E2+= firstc(salt, VVes, Vdes, ddes)
             else:
                 cutoffs_E2+= allc(salt, VVes, Vdes, ddes)
         if j == 2:
+            mins_Q2+=tablemins(salt, closest)
             if i == 0:
                 cutoffs_Q2+= firstc(salt, VVes, Vdes, ddes)
             else:
                 cutoffs_Q2+= allc(salt, VVes, Vdes, ddes)
         if j == 3:
+            mins_K2+=tablemins(salt, closest)
             if i == 0:
                 cutoffs_K2+= firstc(salt, VVes, Vdes, ddes)
             else:
