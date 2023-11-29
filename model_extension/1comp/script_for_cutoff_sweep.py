@@ -8,6 +8,7 @@ Calculations done for EEE2 Q=-2085e, q=45e. Cutoff parameter is |ue|<0.005kBT
 """
 
 import numpy as np
+import math
 
 lb = 0.714 #Bjerrum length, in nm
 aux = np.sqrt(8*lb*0.6022*np.pi)    # the 0.6022 converts the unit of c from Molars to nm^-3
@@ -22,11 +23,27 @@ def yukawa(r, q1, q2, kappa, d1, d2):
     re = r[index[0]]
     ue[r>re] = 0.
     return ue
+
+#lj1 is the modified LJ potential:
+    
+def lj1(r, sigmahc, d1, d2):
+    rmaxlj = sigmahc*(2**(1/6))  #lj cutoff without delta
+    delta = (d1+d2)/2 - sigmahc
+    rcut = rmaxlj + delta    
+    aux = sigmahc/(r - delta)
+    ulj = 1+ 4*(pow(aux, 12) - pow(aux, 6))
+    # ulj = 4*(pow(aux, 12) - pow(aux, 6))
+    ulj[r<delta] = math.inf         #this is just because for r<delta, ulj = infty
+    ulj[r>rcut] = 0.    
+    uljcut = ulj[r==rcut]    
+    return ulj, rcut, uljcut
     
 r = np.linspace(0.001, 100, 10000)
 
 qd = 45  #dendrimer charge, units of e
 Qv = -2122  #VLP charge, units of e
+
+QVLP = [-2122, -1500, -1165, -631]
 
 Dv = 56 #VLP diameter, in nm
 dd = 6.7 #dendrimer diameter, in nm
@@ -78,10 +95,41 @@ def finish():
     fi    '''
     return s
 
+def getmins(Q, c, sigmahc):
+   kappa = 3.287*np.sqrt(c) 
+   ue12, re = yukawa(r, Q, qd, kappa, Dv, dd)
+   rclosest_raw = np.zeros(len(sigmahc))
+   umin = np.zeros(len(sigmahc))
+   
+   
+   for i in range(len(sigmahc)):
+        sig = sigmahc[i]
+        ulj12, rcut12, uljcut12 = lj1(r, sig, D, dd)
+
+        delta12 = (D + dd)/2 - sig
+        d12_ru = delta12/D
+
+        unet12 = ue12 + ulj12
+        closest = np.min(unet12)
+        #print(sig, closest, rcut12 )
+        val_closest = np.where(unet12==closest)
+        index = val_closest[0]
+        rc = r[index[0]]
+    
+        rclosest_raw[i] = rc
+        umin[i] = closest
+
+   rclosest = gaussian_filter1d(rclosest_raw, sigma=5)
+   return rclosest, umin
+
 cutoffs_EEE2 = header()
+mins_EEE2 = header()
 cutoffs_E2 = header()
+mins_E2 = header()
 cutoffs_Q2 = header()
+mins_Q2 = header()
 cutoffs_K2 = header()
+mins_K2 = header()
 
 for j in range(len(VLPS)):
     VLP = VLPS[j]

@@ -1,0 +1,142 @@
+# see 1comp template file for the new structure and automation
+# see past (ERROR_) lammps.template file for the old structure
+
+# 3D simulation of VLP1 + VLP2 + Linker system
+units           lj
+boundary        p       p       p
+atom_style      hybrid  charge  sphere
+neighbor        0.3     bin
+neigh_modify    every   1       delay   0       check   yes
+
+## Create Simulation Box, Atoms ##
+read_data       initCoords2comp.assembly
+
+## Group Atoms by Type ##
+group   VLP1    type    1
+group   VLP2    type    2
+group   Linker  type    3
+group   AllVLPS union   VLP1    VLP2    # creates a group with all VLPs
+
+## Defining Particle and Solvent Properties ##
+mass	1	1
+mass	2	1
+mass	3	0.0029024	# relative mass of linker (G6 dendrimer) to VLP (P22)
+dielectric	78.54
+
+## Variables taken from outside script ##
+variable VLP1Charge		equal 	USERVLP1CHARGE				# in e units
+variable VLP2Charge		equal 	USERVLP2CHARGE				# in e units
+variable SIGMAHC1RAW		equal 	USERSIGMAHC1RAW				# in nm
+variable SIGMAHC2RAW		equal 	USERSIGMAHC2RAW				# in nm
+variable SALTCONC		equal 	USERSALTCONC 				# in M
+variable VLPEScutoff		equal	USERVLPEScutoff				# in reduced units
+variable LinkerEScutoff		equal	USERLinkerEScutoff			# in reduced units
+variable VLPLinkerEScutoff	equal	USERVLPLinkerEScutoff			# in reduced units
+variable RUNCOUNT		equal 	10000 #000				# 10000 short run
+
+## Variables defining interparticle potentials ##
+variable lB		equal 	0.714		# in nm, changes with solvent
+variable VLPDiameterRAW	equal 56		# in nm
+variable LinkerDiameterRAW equal 6.7		# in nm
+variable VLPLJcutoff	equal	2^(1.0/6.0) 	# 2^(1/6) times the VLP diameter 
+
+variable LinkerCharge	equal 	45			# in e units
+variable LinkerDiameter	equal 	v_LinkerDiameterRAW/v_VLPDiameterRAW	# in reduced units adopted by this simulation 
+variable LinkerLJcutoff	equal 	v_LinkerDiameter*(2^(1.0/6.0))	# 2^(1/6) times the linker diameter
+variable SIGMAHC1 	equal 	v_SIGMAHC1RAW/v_VLPDiameterRAW
+variable SIGMAHC2 	equal 	v_SIGMAHC2RAW/v_VLPDiameterRAW
+variable VLP1LinkerLJcutoff	equal v_SIGMAHC1*(2^(1.0/6.0))	# 2^(1/6) times the VLP-linker interaction lengthscale
+variable VLP2LinkerLJcutoff	equal v_SIGMAHC2*(2^(1.0/6.0))	# 2^(1/6) times the VLP-linker interaction lengthscale
+variable DELTA1		equal 	(1+v_LinkerDiameter)*0.5-v_SIGMAHC1	# in reduced units
+variable DELTA2		equal 	(1+v_LinkerDiameter)*0.5-v_SIGMAHC2	# in reduced units
+variable KAPPA		equal 	v_VLPDiameterRAW*sqrt(8*v_lB*v_SALTCONC*PI*0.6022141)	# in reduced units of (1 / vlp diameter)	
+variable VLP1ChargeDLVO	equal	(v_VLP1Charge*exp(v_KAPPA*0.5)/(1+v_KAPPA*0.5))*(1.000676522)	# KAPPA is already in reduced units of the simulation
+variable VLP2ChargeDLVO	equal	(v_VLP2Charge*exp(v_KAPPA*0.5)/(1+v_KAPPA*0.5))*(1.000676522)	# KAPPA is already in reduced units of the simulation
+variable LinkerChargeDLVO equal (v_LinkerCharge*exp(v_KAPPA*v_LinkerDiameter*0.5)/(1+v_KAPPA*v_LinkerDiameter*0.5))*(1.000676522) # both KAPPA and Linker diameter are in reduced units
+
+print	"***** Linker diameter = ${LinkerDiameter} *****"
+print	"***** sigmahc1 = ${SIGMAHC1} *****"
+print	"***** sigmahc2 = ${SIGMAHC2} *****"
+print	"***** Delta1 = ${DELTA1} *****"
+print	"***** Delta2 = ${DELTA2} *****"
+print	"***** kappa = ${KAPPA} *****"
+print	"***** VLP1 charge (DLVO) = ${VLP1ChargeDLVO} *****"
+print	"***** VLP2 charge (DLVO) = ${VLP2ChargeDLVO} *****"
+print	"***** Linker charge (DLVO) = ${LinkerChargeDLVO} *****"
+print	"***** VLPLJcutoff = ${VLPLJcutoff} *****"
+
+set	type	1	charge	${VLP1ChargeDLVO}	# qV_DLVO (in LJ units)  
+set	type	2	charge	${VLP2ChargeDLVO}	# qV_DLVO (in LJ units) 
+set	type	3	charge	${LinkerChargeDLVO}	# qD_DLVO (in LJ units)
+
+## Ascribing Initial Velocities ##
+velocity	all	create	1.		4928459		rot yes		dist gaussian		units box	# 1kB*T, random seed, zero net ang.mom., gauss from MB stats
+
+## Ascribing interparticle potentials: ##
+pair_style	hybrid/overlay	lj/expand  	${VLPLJcutoff}		coul/debye	${KAPPA} ${VLPEScutoff}	# LJ cut without delta, kappa, ES cut
+pair_coeff	1	1	lj/expand	1	1.			0	${VLPLJcutoff}		# epsilon, sigma, delta V1-V1, cutoff V1-V1
+pair_coeff	1	1	coul/debye	${VLPEScutoff}							# V1-V1 ES_cut
+pair_coeff	2	2	lj/expand	1	1.			0	${VLPLJcutoff}		# epsilon, sigma, delta V2-V2, cutoff V2-V2
+pair_coeff	2	2	coul/debye	${VLPEScutoff}							# V2-V2 ES_cut
+pair_coeff	1	2	lj/expand	1	1.			0	${VLPLJcutoff}		# epsilon, sigma, delta V1-V2, cutoff V1-V2
+pair_coeff	1	2	coul/debye	${VLPEScutoff}							# V1-V2 ES_cut
+pair_coeff	1	3	lj/expand	1	${SIGMAHC1}	${DELTA1}	${VLP1LinkerLJcutoff}	# epsilon, sigma_hc1, delta_V1-D, cutoff LJ V1-D
+pair_coeff	1	3	coul/debye	${VLPLinkerEScutoff}						# V1-D ES_cut
+pair_coeff	2	3	lj/expand	1	${SIGMAHC2}	${DELTA2}	${VLP2LinkerLJcutoff}	# epsilon, sigma_hc2, delta_V2-D, cutoff LJ V2-D
+pair_coeff	2	3	coul/debye	${VLPLinkerEScutoff}						# V2-D ES_cut
+pair_coeff	3	3	lj/expand	1	${LinkerDiameter}	0	${LinkerLJcutoff} 	# epsilon, sigma_hc, delta D-D, cutoff D-D
+pair_coeff	3	3	coul/debye	${LinkerEScutoff}						# D-D ES_cut
+pair_modify	shift	yes											# the additive e_LJ for repulsion-only   
+
+variable	DeltaTIME	equal	0.000025
+timestep	${DeltaTIME}
+variable	DumpFreqVLP	equal	v_RUNCOUNT/1000
+variable	DumpFreqAll	equal	v_RUNCOUNT/100
+variable	ThermoFreq	equal   v_RUNCOUNT/10000
+variable	RestartFreq	equal   v_RUNCOUNT/5
+
+## Define Computes for Output ##
+compute	VLP1PEVec	VLP1	pe/atom
+compute	VLP2PEVec	VLP2	pe/atom
+compute VLP1KEVec 	VLP1	ke/atom
+compute VLP2KEVec 	VLP2	ke/atom
+compute LinkerPEVec	Linker	pe/atom
+compute LinkerKEVec	Linker	ke/atom
+compute	VLP1PEavg	VLP1	reduce	ave c_VLP1PEVec
+compute	VLP2PEavg	VLP2	reduce	ave c_VLP2PEVec
+compute	VLP1KEavg	VLP1	reduce	ave c_VLP1KEVec
+compute	VLP2KEavg	VLP2	reduce	ave c_VLP2KEVec
+compute	LinkerPEavg	Linker	reduce	ave c_LinkerPEVec
+compute	LinkerKEavg	Linker	reduce	ave c_LinkerKEVec
+
+## Defining Output Information ##
+dump	VLPdata		AllVLPS	  custom		${DumpFreqVLP}	dumpVLP.melt	id	type	x	y	z
+dump	ALLdata		all	      custom		${DumpFreqAll}	dumpAll.melt	id	type	x	y	z
+
+## Ensemble Fixes ##
+## NVT (main simulation) ##
+fix		NVTensemble	all	nvt	temp	1.	1.	0.0025	# T_start, T_stop, T_damp=100*timestep
+
+thermo_style	custom	step temp c_VLP1KEavg c_VLP2KEavg c_LinkerKEavg c_VLP1PEavg c_VLP2PEavg c_LinkerPEavg etotal pe press
+thermo_modify norm no
+thermo	${ThermoFreq}
+restart	${RestartFreq}	Restartc${SALTCONC}.*
+run	${RUNCOUNT}
+
+unfix		NVTensemble
+
+undump		VLPdata
+undump		ALLdata
+
+uncompute	VLP1PEVec
+uncompute	VLP2PEVec
+uncompute	VLP1KEVec
+uncompute	VLP2KEVec
+uncompute	LinkerPEVec
+uncompute	LinkerKEVec
+uncompute	VLP1PEavg
+uncompute	VLP2PEavg
+uncompute	VLP1KEavg
+uncompute	VLP2KEavg
+uncompute	LinkerPEavg
+uncompute	LinkerKEavg
