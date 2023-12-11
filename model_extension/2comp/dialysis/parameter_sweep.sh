@@ -125,6 +125,9 @@ if [ "$TWOCOMP" = "EEE2E2" ]; then
         USERVLPEScutoff="1.2738825061077537"
         USERVLPLinkerEScutoff="0.7909819017616047"
         USERLinkerEScutoff="0.3196894850199306"     
+        USERVLPEScutoff="1.0551128166388066"
+        USERVLPLinkerEScutoff="0.6059652500964381"
+        USERLinkerEScutoff="0.1621753086022888"     
     fi  
   dir="$USERVLP1"_"$USERVLP2"_c"$USERSALTCONC"
   restartdir="$USERVLP1"_"$USERVLP2"_c"$USERHIGHSALT"
@@ -157,7 +160,6 @@ elif [ "$TWOCOMP" = "E2Q2" ]; then
   USERHIGHSALT=$1		# "from high salt" associated with the dialysis approach
   for USERSALTCONC in $2  	# "to low salt" associated with the dialysis approach
   do
-        
     if [ "$USERSALTCONC" = 0.6 ]; then
         echo $USERSALTCONC
         USERVLPEScutoff="1.0536841166259483"
@@ -247,7 +249,7 @@ elif [ "$TWOCOMP" = "E2Q2" ]; then
         echo $USERSALTCONC
         USERVLPEScutoff="1.2738825061077537"
         USERVLPLinkerEScutoff="0.7909819017616047"
-        USERLinkerEScutoff="0.3196894850199306"      
+        USERLinkerEScutoff="0.3196894850199306"         
     fi      
   dir="$USERVLP1"_"$USERVLP2"_c"$USERSALTCONC"
   restartdir="$USERVLP1"_"$USERVLP2"_c"$USERHIGHSALT"
@@ -266,7 +268,7 @@ elif [ "$TWOCOMP" = "E2Q2" ]; then
     sed -i 's/USERVLP1/'$USERVLP1'/g' assembly.pbs
     sed -i 's/USERVLP2/'$USERVLP2'/g' assembly.pbs
     sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' assembly.pbs
-    #sbatch assembly.pbs
+    sbatch assembly.pbs
     cd ..
   done
 elif [ "$TWOCOMP" = "E2K2" ]; then
@@ -387,7 +389,7 @@ elif [ "$TWOCOMP" = "E2K2" ]; then
     sed -i 's/USERVLP1/'$USERVLP1'/g' assembly.pbs
     sed -i 's/USERVLP2/'$USERVLP2'/g' assembly.pbs
     sed -i 's/USERSALTCONC/'$USERSALTCONC'/g' assembly.pbs
-    #sbatch assembly.pbs
+    sbatch assembly.pbs
     cd ..
    done
 fi
