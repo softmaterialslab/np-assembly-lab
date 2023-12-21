@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# EEE2+E2+Q2 concentrations:  0.6 0.55 0.5 0.4 0.3 0.275 0.245 0.2 0.18 0.16 0.1 0.04 (decide on the sequence, change downstairs)
+# EEE2+E2+Q2 concentrations:  0.6 0.55 0.5 0.4 0.325 0.3 0.275 0.245 0.2 0.18 0.16 0.125 0.1 0.04 (decide on the sequence, change downstairs)
 # E2+Q2+K2 concentrations:    0.3 0.275 0.245 0.2 0.18 0.16 0.125 0.1 0.075 0.04 (decide on the sequence, change downstairs)
 
 # check the cutoff values below
