@@ -236,7 +236,7 @@ elif [ "$THREECOMP" = "E2Q2K2" ]; then
         USERVLPLinkerEScutoff="0.7909819017616047"
         USERLinkerEScutoff="0.3196894850199306"     
     fi        
-  dir="$USERVLP1"_"$USERVLP2"_c"$USERSALTCONC"
+  dir="$USERVLP1"_"$USERVLP2"_"$USERVLP3"_c"$USERSALTCONC"
   cp -a template/ $dir
   cd $dir
     sed -i 's/USERVLP1CHARGE/'$USERVLP1CHARGE'/g' in.3comp.template
