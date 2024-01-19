@@ -29,7 +29,7 @@ if [ "$THREECOMP" = "EEE2E2Q2" ]; then
   USERSIGMAHC3RAW="4"
   USERHIGHSALT=$1		# "from high salt" associated with the dialysis approach
   for USERSALTCONC in $2  	# "to low salt" associated with the dialysis approach
-  do        
+  do      
     if [ "$USERSALTCONC" = 0.6 ]; then
         echo $USERSALTCONC
         USERVLPEScutoff="1.0536841166259483"
@@ -120,7 +120,7 @@ if [ "$THREECOMP" = "EEE2E2Q2" ]; then
         USERVLPEScutoff="1.2738825061077537"
         USERVLPLinkerEScutoff="0.7909819017616047"
         USERLinkerEScutoff="0.3196894850199306"     
-    fi    
+    fi        
   dir="$USERVLP1"_"$USERVLP2"_"$USERVLP3"_c"$USERSALTCONC"
   restartdir="$USERVLP1"_"$USERVLP2"_"$USERVLP3"_c"$USERHIGHSALT"
   cp -a template/ $dir
@@ -208,7 +208,7 @@ elif [ "$THREECOMP" = "E2Q2K2" ]; then
         USERVLPEScutoff="1.2738825061077537"
         USERVLPLinkerEScutoff="0.7909819017616047"
         USERLinkerEScutoff="0.3196894850199306"     
-    fi    
+    fi     
   dir="$USERVLP1"_"$USERVLP2"_"$USERVLP3"_c"$USERSALTCONC"
   restartdir="$USERVLP1"_"$USERVLP2"_"$USERVLP3"_c"$USERHIGHSALT"
   cp -a template/ $dir
