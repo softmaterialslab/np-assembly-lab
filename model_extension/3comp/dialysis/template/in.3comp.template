@@ -108,8 +108,8 @@ pair_coeff	1	3	lj/expand	1	${SIGMAHC1}	${DELTA1}	${VLP1LinkerLJcutoff}	# epsilon
 pair_coeff	1	3	coul/debye	${VLPLinkerEScutoff}						        # V1-D ES_cut
 pair_coeff	2	3	lj/expand	1	${SIGMAHC2}	${DELTA2}	${VLP2LinkerLJcutoff}	# epsilon, sigma_hc2, delta_V2-D, cutoff LJ V2-D
 pair_coeff	2	3	coul/debye	${VLPLinkerEScutoff}						        # V2-D ES_cut
-pair_coeff	4	3	lj/expand	1	${SIGMAHC3}	${DELTA3}	${VLP3LinkerLJcutoff}	# epsilon, sigma_hc3, delta_V3-D, cutoff LJ V3-D
-pair_coeff	4	3	coul/debye	${VLPLinkerEScutoff}						        # V3-D ES_cut
+pair_coeff	3	4	lj/expand	1	${SIGMAHC3}	${DELTA3}	${VLP3LinkerLJcutoff}	# epsilon, sigma_hc3, delta_V3-D, cutoff LJ V3-D
+pair_coeff	3	4	coul/debye	${VLPLinkerEScutoff}						        # V3-D ES_cut
 
 ## Linker-Linker ##
 pair_coeff	3	3	lj/expand	1	${LinkerDiameter}	0	${LinkerLJcutoff}         # epsilon, sigma_hc, delta D-D, cutoff D-D
