@@ -1,0 +1,219 @@
+# see 1comp and 2comp template files for the new structure and automation
+# see past in.lammps.template file for the old structure
+
+# 3D simulation of VLP1 + VLP2 + VLP3 + Linker system
+units           lj
+boundary        p       p       p
+atom_style      hybrid  charge  sphere
+neighbor        0.3     bin
+neigh_modify    every   1       delay   0       check   yes
+
+## Create Simulation Box, Atoms ##
+read_data       initCoords4comp.assembly
+
+## Group Atoms by Type ##
+group   VLP1    type    1
+group   VLP2    type    2
+group   Linker  type    3
+group   VLP3    type    4                       		# note this awkward labeling
+group   VLP4    type    5                      			# note this awkward labeling
+group   AllVLPS union   VLP1    VLP2    VLP3	VLP4    # creates a group with all VLPs
+
+## Defining Particle and Solvent Properties ##
+mass	1	1
+mass	2	1
+mass	3	0.0029024	# relative mass of linker (G6 dendrimer) to VLP (P22)
+mass    4   1
+mass    5   1
+dielectric	78.54
+
+## Variables taken from outside script ##
+variable VLP1Charge         equal 	USERVLP1CHARGE				# in e units
+variable VLP2Charge         equal 	USERVLP2CHARGE				# in e units
+variable VLP3Charge         equal 	USERVLP3CHARGE				# in e units
+variable VLP4Charge         equal 	USERVLP4CHARGE				# in e units
+variable SIGMAHC1RAW        equal 	USERSIGMAHC1RAW				# in nm
+variable SIGMAHC2RAW        equal 	USERSIGMAHC2RAW				# in nm
+variable SIGMAHC3RAW        equal 	USERSIGMAHC3RAW				# in nm
+variable SIGMAHC4RAW        equal 	USERSIGMAHC4RAW				# in nm
+variable SALTCONC           equal 	USERSALTCONC 				# in M
+variable VLPEScutoff		equal	USERVLPEScutoff             # in reduced units
+variable LinkerEScutoff		equal	USERLinkerEScutoff          # in reduced units
+variable VLPLinkerEScutoff	equal	USERVLPLinkerEScutoff       # in reduced units
+variable RUNCOUNT           equal 	10000 #000                  # 10000 short run
+
+## Variables defining interparticle potentials ##
+variable lB                 equal 	0.714		# in nm, changes with solvent
+variable VLPDiameterRAW	    equal   56		    # in nm
+variable LinkerDiameterRAW  equal   6.7         # in nm
+variable VLPLJcutoff        equal	2^(1.0/6.0) # 2^(1/6) times the VLP diameter 
+
+variable LinkerCharge       equal 	45                                           # in e units
+variable LinkerDiameter	    equal 	v_LinkerDiameterRAW/v_VLPDiameterRAW         # in reduced units adopted by this simulation 
+variable LinkerLJcutoff     equal 	v_LinkerDiameter*(2^(1.0/6.0))               # 2^(1/6) times the linker diameter
+variable SIGMAHC1           equal 	v_SIGMAHC1RAW/v_VLPDiameterRAW
+variable SIGMAHC2           equal 	v_SIGMAHC2RAW/v_VLPDiameterRAW
+variable SIGMAHC3           equal 	v_SIGMAHC3RAW/v_VLPDiameterRAW
+variable SIGMAHC4           equal 	v_SIGMAHC4RAW/v_VLPDiameterRAW
+variable VLP1LinkerLJcutoff	equal   v_SIGMAHC1*(2^(1.0/6.0))                        # 2^(1/6) times the VLP-linker interaction lengthscale
+variable VLP2LinkerLJcutoff	equal   v_SIGMAHC2*(2^(1.0/6.0))                        # 2^(1/6) times the VLP-linker interaction lengthscale
+variable VLP3LinkerLJcutoff	equal   v_SIGMAHC3*(2^(1.0/6.0))                        # 2^(1/6) times the VLP-linker interaction lengthscale
+variable VLP4LinkerLJcutoff	equal   v_SIGMAHC4*(2^(1.0/6.0))                        # 2^(1/6) times the VLP-linker interaction lengthscale
+variable DELTA1             equal   (1+v_LinkerDiameter)*0.5-v_SIGMAHC1             # in reduced units
+variable DELTA2             equal   (1+v_LinkerDiameter)*0.5-v_SIGMAHC2	                    # in reduced units
+variable DELTA3             equal 	(1+v_LinkerDiameter)*0.5-v_SIGMAHC3	                    # in reduced units
+variable DELTA4             equal 	(1+v_LinkerDiameter)*0.5-v_SIGMAHC4	                    # in reduced units
+variable KAPPA              equal   v_VLPDiameterRAW*sqrt(8*v_lB*v_SALTCONC*PI*0.6022141)	# in reduced units of (1 / vlp diameter)	
+variable VLP1ChargeDLVO	equal	(v_VLP1Charge*exp(v_KAPPA*0.5)/(1+v_KAPPA*0.5))*(1.00065763)	# KAPPA is already in reduced units of the simulation
+variable VLP2ChargeDLVO	equal	(v_VLP2Charge*exp(v_KAPPA*0.5)/(1+v_KAPPA*0.5))*(1.00065763)	# KAPPA is already in reduced units of the simulation
+variable VLP3ChargeDLVO	equal	(v_VLP3Charge*exp(v_KAPPA*0.5)/(1+v_KAPPA*0.5))*(1.00065763)	# KAPPA is already in reduced units of the simulation
+variable VLP4ChargeDLVO	equal	(v_VLP4Charge*exp(v_KAPPA*0.5)/(1+v_KAPPA*0.5))*(1.00065763)	# KAPPA is already in reduced units of the simulation
+variable LinkerChargeDLVO equal (v_LinkerCharge*exp(v_KAPPA*v_LinkerDiameter*0.5)/(1+v_KAPPA*v_LinkerDiameter*0.5))*(1.00065763) # both KAPPA and Linker diameter are in reduced units
+
+print	"***** Linker diameter = ${LinkerDiameter} *****"
+print	"***** sigmahc1 = ${SIGMAHC1} *****"
+print	"***** sigmahc2 = ${SIGMAHC2} *****"
+print	"***** sigmahc3 = ${SIGMAHC3} *****"
+print	"***** sigmahc4 = ${SIGMAHC4} *****"
+print	"***** Delta1 = ${DELTA1} *****"
+print	"***** Delta2 = ${DELTA2} *****"
+print	"***** Delta3 = ${DELTA3} *****"
+print	"***** Delta4 = ${DELTA4} *****"
+print	"***** kappa = ${KAPPA} *****"
+print	"***** VLP1 charge (DLVO) = ${VLP1ChargeDLVO} *****"
+print	"***** VLP2 charge (DLVO) = ${VLP2ChargeDLVO} *****"
+print	"***** VLP3 charge (DLVO) = ${VLP3ChargeDLVO} *****"
+print	"***** VLP4 charge (DLVO) = ${VLP4ChargeDLVO} *****"
+print	"***** Linker charge (DLVO) = ${LinkerChargeDLVO} *****"
+print	"***** VLPLJcutoff = ${VLPLJcutoff} *****"
+
+set	type	1	charge	${VLP1ChargeDLVO}	# qV1_DLVO (in LJ units)  
+set	type	2	charge	${VLP2ChargeDLVO}	# qV2_DLVO (in LJ units) 
+set	type	3	charge	${LinkerChargeDLVO}	# qD_DLVO (in LJ units)
+set	type	4	charge	${VLP3ChargeDLVO}	# qV3_DLVO (in LJ units) 
+set	type	5	charge	${VLP4ChargeDLVO}	# qV4_DLVO (in LJ units) 
+
+## Ascribing Initial Velocities ##
+velocity	all	create	1.		4928459		rot yes		dist gaussian		units box	# 1kB*T, random seed, zero net ang.mom., gauss from MB stats
+
+## Ascribing interparticle potentials: ##
+
+## VLP-VLP self ##
+pair_style	hybrid/overlay	lj/expand  	${VLPLJcutoff}		coul/debye	${KAPPA} ${VLPEScutoff}	# LJ cut without delta, kappa, ES cut
+pair_coeff	1	1	lj/expand	1	1.			0	${VLPLJcutoff}		# epsilon, sigma, delta V1-V1, cutoff V1-V1
+pair_coeff	1	1	coul/debye	${VLPEScutoff}							# V1-V1 ES_cut
+pair_coeff	2	2	lj/expand	1	1.			0	${VLPLJcutoff}		# epsilon, sigma, delta V2-V2, cutoff V2-V2
+pair_coeff	2	2	coul/debye	${VLPEScutoff}							# V2-V2 ES_cut
+pair_coeff	4	4	lj/expand	1	1.			0	${VLPLJcutoff}		# epsilon, sigma, delta V3-V3, cutoff V3-V3
+pair_coeff	4	4	coul/debye	${VLPEScutoff}							# V3-V3 ES_cut
+pair_coeff	5	5	lj/expand	1	1.			0	${VLPLJcutoff}		# epsilon, sigma, delta V4-V4, cutoff V4-V4
+pair_coeff	5	5	coul/debye	${VLPEScutoff}							# V4-V4 ES_cut
+
+## VLP-VLP cross ##
+pair_coeff	1	2	lj/expand	1	1.			0	${VLPLJcutoff}		# epsilon, sigma, delta V1-V2, cutoff V1-V2
+pair_coeff	1	2	coul/debye	${VLPEScutoff}							# V1-V2 ES_cut
+pair_coeff	1	4	lj/expand	1	1.			0	${VLPLJcutoff}		# epsilon, sigma, delta V1-V3, cutoff V1-V3
+pair_coeff	1	4	coul/debye	${VLPEScutoff}							# V1-V3 ES_cut
+pair_coeff	1	5	lj/expand	1	1.			0	${VLPLJcutoff}		# epsilon, sigma, delta V1-V4, cutoff V1-V4
+pair_coeff	1	5	coul/debye	${VLPEScutoff}							# V1-V4 ES_cut
+pair_coeff	2	4	lj/expand	1	1.			0	${VLPLJcutoff}		# epsilon, sigma, delta V2-V3, cutoff V2-V3
+pair_coeff	2	4	coul/debye	${VLPEScutoff}							# V2-V3 ES_cut
+pair_coeff	2	5	lj/expand	1	1.			0	${VLPLJcutoff}		# epsilon, sigma, delta V2-V4, cutoff V2-V4
+pair_coeff	2	5	coul/debye	${VLPEScutoff}							# V2-V4 ES_cut
+pair_coeff	4	5	lj/expand	1	1.			0	${VLPLJcutoff}		# epsilon, sigma, delta V3-V4, cutoff V3-V4
+pair_coeff	4	5	coul/debye	${VLPEScutoff}							# V3-V4 ES_cut
+
+## VLP-Linker ##
+pair_coeff	1	3	lj/expand	1	${SIGMAHC1}	${DELTA1}	${VLP1LinkerLJcutoff}	# epsilon, sigma_hc1, delta_V1-D, cutoff LJ V1-D
+pair_coeff	1	3	coul/debye	${VLPLinkerEScutoff}						        # V1-D ES_cut
+pair_coeff	2	3	lj/expand	1	${SIGMAHC2}	${DELTA2}	${VLP2LinkerLJcutoff}	# epsilon, sigma_hc2, delta_V2-D, cutoff LJ V2-D
+pair_coeff	2	3	coul/debye	${VLPLinkerEScutoff}						        # V2-D ES_cut
+pair_coeff	3	4	lj/expand	1	${SIGMAHC3}	${DELTA3}	${VLP3LinkerLJcutoff}	# epsilon, sigma_hc3, delta_V3-D, cutoff LJ V3-D
+pair_coeff	3	4	coul/debye	${VLPLinkerEScutoff}						        # V3-D ES_cut
+pair_coeff	3	5	lj/expand	1	${SIGMAHC4}	${DELTA4}	${VLP4LinkerLJcutoff}	# epsilon, sigma_hc4, delta_V4-D, cutoff LJ V4-D
+pair_coeff	3	5	coul/debye	${VLPLinkerEScutoff}						        # V4-D ES_cut
+
+## Linker-Linker ##
+pair_coeff	3	3	lj/expand	1	${LinkerDiameter}	0	${LinkerLJcutoff}         # epsilon, sigma_hc, delta D-D, cutoff D-D
+pair_coeff	3	3	coul/debye	${LinkerEScutoff}                                     # D-D ES_cut
+
+pair_modify	shift	yes											# the additive e_LJ for repulsion-only   
+
+variable	DeltaTIME	equal	0.000025
+timestep	${DeltaTIME}
+variable	DumpFreqVLP	equal	v_RUNCOUNT/1000
+variable	DumpFreqAll	equal	v_RUNCOUNT/100
+variable	ThermoFreq	equal   v_RUNCOUNT/10000
+variable	RestartFreq	equal   v_RUNCOUNT/5
+
+## Define Computes for Output ##
+compute	VLP1PEVec	VLP1	pe/atom
+compute	VLP2PEVec	VLP2	pe/atom
+compute	VLP3PEVec	VLP3	pe/atom
+compute	VLP4PEVec	VLP4	pe/atom
+
+compute VLP1KEVec 	VLP1	ke/atom
+compute VLP2KEVec 	VLP2	ke/atom
+compute VLP3KEVec 	VLP3	ke/atom
+compute VLP4KEVec 	VLP4	ke/atom
+
+compute LinkerPEVec	Linker	pe/atom
+compute LinkerKEVec	Linker	ke/atom
+
+compute	VLP1PEavg	VLP1	reduce	ave c_VLP1PEVec
+compute	VLP2PEavg	VLP2	reduce	ave c_VLP2PEVec
+compute	VLP3PEavg	VLP3	reduce	ave c_VLP3PEVec
+compute	VLP4PEavg	VLP4	reduce	ave c_VLP4PEVec
+
+compute	VLP1KEavg	VLP1	reduce	ave c_VLP1KEVec
+compute	VLP2KEavg	VLP2	reduce	ave c_VLP2KEVec
+compute	VLP3KEavg	VLP3	reduce	ave c_VLP3KEVec
+compute	VLP4KEavg	VLP4	reduce	ave c_VLP4KEVec
+
+compute	LinkerPEavg	Linker	reduce	ave c_LinkerPEVec
+compute	LinkerKEavg	Linker	reduce	ave c_LinkerKEVec
+
+## Defining Output Information ##
+dump	VLPdata		AllVLPS	  custom		${DumpFreqVLP}	dumpVLP.melt	id	type	x	y	z
+dump	ALLdata		all	      custom		${DumpFreqAll}	dumpAll.melt	id	type	x	y	z
+
+## Ensemble Fixes ##
+## NVT (main simulation) ##
+fix		NVTensemble	all	nvt	temp	1.	1.	0.0025	# T_start, T_stop, T_damp=100*timestep
+
+thermo_style	custom	step temp c_VLP1KEavg c_VLP2KEavg c_VLP3KEavg c_VLP4KEavg c_LinkerKEavg c_VLP1PEavg c_VLP2PEavg c_VLP3PEavg c_VLP4PEavg c_LinkerPEavg etotal pe press
+thermo_modify norm no
+thermo	${ThermoFreq}
+restart	${RestartFreq}	Restartc${SALTCONC}.*
+run	${RUNCOUNT}
+
+unfix		NVTensemble
+
+undump		VLPdata
+undump		ALLdata
+
+uncompute	VLP1PEVec
+uncompute	VLP2PEVec
+uncompute	VLP3PEVec
+uncompute	VLP4PEVec
+
+uncompute	VLP1KEVec
+uncompute	VLP2KEVec
+uncompute	VLP3KEVec
+uncompute	VLP4KEVec
+
+uncompute	LinkerPEVec
+uncompute	LinkerKEVec
+
+uncompute	VLP1PEavg
+uncompute	VLP2PEavg
+uncompute	VLP3PEavg
+uncompute	VLP4PEavg
+
+uncompute	VLP1KEavg
+uncompute	VLP2KEavg
+uncompute	VLP3KEavg
+uncompute	VLP4KEavg
+
+uncompute	LinkerPEavg
+uncompute	LinkerKEavg
