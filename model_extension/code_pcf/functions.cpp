@@ -170,14 +170,14 @@ int select_gr(int vlpTypes, int *vlpOriginType, int *vlpTargetType, long double 
       cin >> grType;
       if (grType == "self")
       {
-          cout << "which self correlation you want to compute: between VLP type 1 and VLP type 1 (enter 1) OR VLP type 2 and VLP type 2 (enter 2) OR between VLP type 3 and VLP type 3 (enter 4 <-- THIS IS NOT A TYPO) OR between VLP type 5 and VLP type 5 (enter 5 <-- THIS IS NOT A TYPO)?" << endl;
+          cout << "which self correlation you want to compute: between VLP type 1 and VLP type 1 (enter 1) OR VLP type 2 and VLP type 2 (enter 2) OR between VLP type 3 and VLP type 3 (enter 4 <-- THIS IS NOT A TYPO) OR between VLP type 4 and VLP type 4 (enter 5 <-- THIS IS NOT A TYPO)?" << endl;
           cin >> selfType;
           *vlpOriginType = selfType;
           *vlpTargetType = *vlpOriginType;
       }
       else if (grType == "cross")
       {
-          cout << "which cross correlation you want to compute: between VLP type 1 and VLP type 2 (enter 1 ENTER 2) OR VLP type 1 and VLP type 3 (enter 1 ENTER 4) OR VLP type 1 and VLP type 4 (enter 1 ENTER 5) OR between VLP type 2 and VLP type 3 (enter 2 ENTER 4) OR between VLP type 2 and VLP type 4 (enter 2 ENTER 5) OR between VLP type 2 and VLP type 4 (enter 2 ENTER 5) OR between VLP type 3 and VLP type 4 (enter 4 ENTER 5)?" << endl;
+          cout << "which cross correlation you want to compute: between VLP type 1 and VLP type 2 (enter 1 ENTER 2) OR VLP type 1 and VLP type 3 (enter 1 ENTER 4) OR VLP type 1 and VLP type 4 (enter 1 ENTER 5) OR between VLP type 2 and VLP type 3 (enter 2 ENTER 4) OR between VLP type 2 and VLP type 4 (enter 2 ENTER 5) OR between VLP type 3 and VLP type 4 (enter 4 ENTER 5)?" << endl;
           cin >> crossOriginType;
           cin >> crossTargetType;
           *vlpOriginType = crossOriginType;
