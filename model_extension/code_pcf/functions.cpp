@@ -163,6 +163,33 @@ int select_gr(int vlpTypes, int *vlpOriginType, int *vlpTargetType, long double 
           return(0);
       }
   }
+  else if (vlpTypes == 4)
+  {
+      cout << "\nfor a 4-component system, there are 4 self correlation functions (g11, g22, g33, g44) and 6 cross correlation function (g12, g13, g14, g23, g24, g34)" << endl;
+      cout << "which correlation function you want to compute: self or cross?" << endl;
+      cin >> grType;
+      if (grType == "self")
+      {
+          cout << "which self correlation you want to compute: between VLP type 1 and VLP type 1 (enter 1) OR VLP type 2 and VLP type 2 (enter 2) OR between VLP type 3 and VLP type 3 (enter 4 <-- THIS IS NOT A TYPO) OR between VLP type 4 and VLP type 4 (enter 5 <-- THIS IS NOT A TYPO)?" << endl;
+          cin >> selfType;
+          *vlpOriginType = selfType;
+          *vlpTargetType = *vlpOriginType;
+      }
+      else if (grType == "cross")
+      {
+          cout << "which cross correlation you want to compute: between VLP type 1 and VLP type 2 (enter 1 ENTER 2) OR VLP type 1 and VLP type 3 (enter 1 ENTER 4) OR VLP type 1 and VLP type 4 (enter 1 ENTER 5) OR between VLP type 2 and VLP type 3 (enter 2 ENTER 4) OR between VLP type 2 and VLP type 4 (enter 2 ENTER 5) OR between VLP type 3 and VLP type 4 (enter 4 ENTER 5)?" << endl;
+          cin >> crossOriginType;
+          cin >> crossTargetType;
+          *vlpOriginType = crossOriginType;
+          *vlpTargetType = crossTargetType;
+          *bulk_density_per_variant_for_norm = (N*1.0/variants)/V;
+      }
+      else
+      {
+          cout << "\nsomething is wrong--> check gr info...exiting..." << endl;
+          return(0);
+      }	  
+  }
   cout << "\ncomputing " << grType << " g(r) between VLP type " <<  *vlpOriginType << " and VLP type " << *vlpTargetType << endl;
   return(1);
 }
