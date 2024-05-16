@@ -108,6 +108,8 @@ int main(int argc, char* argv[])
   int PCF_answer;
   int dend_answer;
   
+  double threshold_distance;
+  
   cout << "Do you wish to calculate any PCFs between VLPs (not recommended with dumpAll.melt file)? enter YES = 1 or NO = 0" << endl;
   cin >> PCF_answer;
   if (PCF_answer == 1)
@@ -129,7 +131,11 @@ int main(int argc, char* argv[])
   if (dend_answer == 1)
   {
 	  cout << "dendrimer counting will be performed" << endl;
-
+      double threshold_factor;
+      cout << "enter threshold factor that will multiply the touch distance between vlp and linker (1, 1.05, etc.)" << endl;
+      cin >> threshold_factor;
+      threshold_distance = threshold_factor * 0.5 * (vlp_diameter+dend_diameter)/1e9/unitlength;
+      cout << "threshold distance in reduced units is: " << threshold_distance << endl;
   }
   else if (PCF_answer == 0)
   {
@@ -240,7 +246,8 @@ int main(int argc, char* argv[])
 
   if (dend_answer == 1)
   {
-	int dend_selection = select_dend(vlpTypes, &vlpOriginType);
+    int dend_selection = select_dend(vlpTypes, &vlpOriginType);
+    int framecountLinker = 0; // counting for all frames
 	                
     if (dend_selection == 0) 
 	{
@@ -248,9 +255,68 @@ int main(int argc, char* argv[])
       return 0;
     }	
 	
-	count_dends(0,condensed,dummy_samples,dummy_vlp,edge_length,vlpOriginType,vlpTargetType,bin_width,bulk_density_per_variant_for_norm);;
+	for (unsigned int i = 0; i < totalframes; i++)  
+	{
+    vector<PARTICLE> vlp_specific; // all particles in the system
+    vector<PARTICLE> linker;
+    int col1, col2; // id, type
+    double col3, col4, col5; // x, y, z
+    
+    
+    char filename[100];
+    int filenumber = start_filenumber + i*data_collect_frequency;
+    
+    if (filenumber%skipFrames !=0) continue; // skip every skipFrames
+    
+    sprintf(filename, "frame%d", filenumber);
+    ifstream file(filename, ios::in); // reading data from a file
+    if (!file) 
+    {
+      cout << "File could not be opened" << endl;
+      continue;
+    }
+    else if (filenumber%10==0)
+      cout << "read frame" << filenumber << endl;
+    
+    samples++;
+    
+    for (int i = 1; i <= 9; i++)
+    {
+      string dummyline;
+      getline(file, dummyline); // ignoring the first 9 lines that act as dummylines
+    }
+    
+    while (file >> col1 >> col2 >> col3 >> col4 >> col5)
+    {
+      PARTICLE myparticle = PARTICLE(col1, col2, VECTOR3D(col3, col4, col5));
+      if (col2 == vlpOriginType)
+          vlp_specific.push_back(myparticle);
+      else if (col2 == 3)
+          linker.push_back(myparticle);
+    }
+	
+	int countLinker = 0; // counting only the condensed linkers for one frame
+    for (int i = 0; i < vlp_specific.size(); i++)
+    {
+        for (int j = 0; j < linker.size(); j++)
+        {
+            double distance = (vlp_specific[i].posvec - linker[j].posvec).Magnitude();
+            if (distance < threshold_distance)
+                countLinker++;
+        }        
+    }
+    
+    countLinker = countLinker / vlp_specific.size();
+    
+    framecountLinker = framecountLinker + countLinker;
+	
+	//count_dends(0,condensed,dummy_samples,dummy_vlp,edge_length,vlpOriginType,vlpTargetType,bin_width,bulk_density_per_variant_for_norm);;
 	
 	
+  }
+  
+  cout << "number of condensed linkers per VLP of type:" << vlpOriginType << " are " << framecountLinker/totalframes << endl;
+  cout << "\n";
   }
   
   return 0;

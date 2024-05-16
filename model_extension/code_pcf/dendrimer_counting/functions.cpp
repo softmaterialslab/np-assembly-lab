@@ -236,6 +236,7 @@ int select_dend(int vlpTypes, int *vlpOriginType)
 	  *vlpOriginType = selfType;
   }
   cout << "\ncomputing dendrimer statistics for VLP type " <<  *vlpOriginType <<  endl;
+  
   return(1);
 }
 
