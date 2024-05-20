@@ -1,4 +1,4 @@
-// Last update: Nov 02, 2023
+// Last update: May 20th, 2024
 // This is main.
 
 #include<iostream>
@@ -22,16 +22,25 @@ long double unitlength;
 // vlpTypes, vlpOriginType, vlpTargetType
 int select_gr(int, int*, int*, long double*, int, int, long double);
 
+
+
 //select VLP for dendrimer stats
+//for condensed dendrimers
 // vlpTypes, vlpOriginType
 int select_dend(int, int*);
 
+//for bridging dendrimers
+// vlpTypes, vlpOriginType, vlpTargetType
+int select_bridging(int, int*, int*);
 
 // compute g(r)
 // stage, g(bin), samples, vlps, edge, vlpOrgTy, vlpTarTy, bw, rho_bulk.
 void compute_gr(int, vector<BINCONTAINER>&, unsigned int, vector<PARTICLE>&, long double, int, int, double, long double);
 
 //compute dendrimer stats
+//in main code
+
+//begin:
 
 int main(int argc, char* argv[]) 
 {
@@ -46,6 +55,7 @@ int main(int argc, char* argv[])
 
   cout << "\n***\n";
   cout << "This program computes the pair correlation function g(r) between VLPs. \nIt assumes you have generated frame.* files using the LAMMPS-produced dump.melt file containing *all* VLPs. \nFrom the user it will need \n * bulk virus concentration, \n * number of components (variant types) in the mixture, \n * total number of VLPs (summing over all vlp types), \n * total number of time samples (frames), and \n * bin width. \ng(r) is produced for self correlations and cross correlations. Results are normalized by the ideal gas bulk virus concentration and are filed as a function of distance in units of VLP diameter." << endl;
+  cout << "For condensed and bridging dendrimer counting, make sut=re to use the dumpAll.melt file containing the dendrimer positions." << endl;
   
   cout << "\n***\n";
   cout << "Physical system details \n * all VLP variants have the same size of 56 nm. \n * we are assuming equal concentrations of different variants, (e.g., 1:1 mixture for a 2-component system) \n * note the mapping --> higher charged variant has a smaller variant type number" << endl;
@@ -105,8 +115,10 @@ int main(int argc, char* argv[])
   long double bulk_density_per_variant_for_norm = (total_vlp_number / vlpTypes - 1) / simulationBoxVolume; // (N-1) / V is the ideal gas density to be used for normalizing g(r)
 
   /* --------- Choice of operations --------- */
-  int PCF_answer;
-  int dend_answer;
+  int PCF_answer; // asks if user wants to calculate pcf
+  int dend_answer; //asks if user wants to count dendrimers
+  int condensed_answer; //asks if user wants to count condensed dendrimers
+  int bridging_answer;  //asks if user wants to count bridging dendrimers
   
   double threshold_distance;
   
@@ -130,12 +142,18 @@ int main(int argc, char* argv[])
   cin >> dend_answer;
   if (dend_answer == 1)
   {
-	  cout << "dendrimer counting will be performed" << endl;
+	  cout << "Dendrimer counting will be performed." << endl;
       double threshold_factor;
       cout << "enter threshold factor that will multiply the touch distance between vlp and linker (1, 1.05, etc.)" << endl;
       cin >> threshold_factor;
       threshold_distance = threshold_factor * 0.5 * (vlp_diameter+dend_diameter)/1e9/unitlength;
       cout << "threshold distance in reduced units is: " << threshold_distance << endl;
+	  
+	  cout << "Perform counting of condensed dendrimers for a specific VLP type? enter YES = 1 or NO = 0" << endl;
+	  cin >> condensed_answer;
+	  
+	  cout << "Perform counting of bridging dendrimers? enter YES = 1 or NO = 0" << endl;
+	  cin >> bridging_answer;
   }
   else if (PCF_answer == 0)
   {
@@ -171,8 +189,12 @@ int main(int argc, char* argv[])
   cin >> data_collect_frequency;
   cout << "enter the number of frames you want to skip (common: 1, means no frame skipped; 10)" << endl;
   cin >> skipFrames;
+  
+  if (PCF_answer == 1)
+  {
   cout << "enter bin width (common: 0.01, 0.005, 0.001)" << endl;
   cin >> bin_width;
+  }
   
   bool atleastonefile = false;
   
@@ -244,7 +266,7 @@ int main(int argc, char* argv[])
 	compute_gr(2,gr,samples,dummy_vlp,edge_length,vlpOriginType,vlpTargetType,bin_width,bulk_density_per_variant_for_norm);
   }
 
-  if (dend_answer == 1)
+  if (condensed_answer == 1)
   {
     int dend_selection = select_dend(vlpTypes, &vlpOriginType);
     int framecountLinker = 0; // counting for all frames
@@ -257,7 +279,7 @@ int main(int argc, char* argv[])
 	
 	for (unsigned int i = 0; i < totalframes; i++)  
 	{
-    vector<PARTICLE> vlp_specific; // all particles in the system
+    vector<PARTICLE> vlp_specific; // specific VLPs
     vector<PARTICLE> linker;
     int col1, col2; // id, type
     double col3, col4, col5; // x, y, z
@@ -306,16 +328,106 @@ int main(int argc, char* argv[])
         }        
     }
     
-    countLinker = countLinker / vlp_specific.size();
-    
+    countLinker = countLinker / vlp_specific.size();    
     framecountLinker = framecountLinker + countLinker;
-	
-	//count_dends(0,condensed,dummy_samples,dummy_vlp,edge_length,vlpOriginType,vlpTargetType,bin_width,bulk_density_per_variant_for_norm);;
-	
-	
+		
   }
   
   cout << "number of condensed linkers per VLP of type:" << vlpOriginType << " are " << framecountLinker/totalframes << endl;
+  cout << "\n";
+  }
+  
+  if (bridging_answer ==1)
+  {
+	int bridging_selection = select_bridging(vlpTypes, &vlpOriginType, &vlpTargetType);
+    int framecountLinker = 0; // counting for all frames
+	                
+    if (bridging_selection == 0) 
+	{
+      cout << "\nsomething is wrong--> ...exiting..." << endl;
+      return 0;
+    }	
+	
+	for (unsigned int i = 0; i < totalframes; i++)  
+	{
+    vector<PARTICLE> vlp; //all VLPs in the system
+    vector<PARTICLE> linker;
+    int col1, col2; // id, type
+    double col3, col4, col5; // x, y, z
+        
+    char filename[100];
+    int filenumber = start_filenumber + i*data_collect_frequency;
+    
+    if (filenumber%skipFrames !=0) continue; // skip every skipFrames
+    
+    sprintf(filename, "frame%d", filenumber);
+    ifstream file(filename, ios::in); // reading data from a file
+    if (!file) 
+    {
+      cout << "File could not be opened" << endl;
+      continue;
+    }
+    else if (filenumber%10==0)
+      cout << "read frame" << filenumber << endl;
+    
+    samples++;
+    
+    for (int i = 1; i <= 9; i++)
+    {
+      string dummyline;
+      getline(file, dummyline); // ignoring the first 9 lines that act as dummylines
+    }
+    
+    while (file >> col1 >> col2 >> col3 >> col4 >> col5)
+    {
+      PARTICLE myparticle = PARTICLE(col1, col2, VECTOR3D(col3, col4, col5));
+      if (col2 !=3)
+          vlp.push_back(myparticle);
+
+      else if (col2 == 3)
+          linker.push_back(myparticle);
+    }
+	
+	int countLinker = 0; // counting only the condensed linkers for one frame
+	int counter = 0;
+	
+    for (int i = 0; i < linker.size(); i++) //sweep over all linkers
+    {
+		int counter;
+        for (int j = 0; j < vlp.size(); j++)
+        {
+			if (vlpOriginType == vlpTargetType)
+			{
+				counter = i+1;
+			}
+			else
+			{
+				counter = 0;
+			}
+			
+			double distance = (vlp[i].posvec - linker[j].posvec).Magnitude();
+			if (distance < threshold_distance)
+			{
+				for (unsigned int j = counter; j < vlp.size(); j++)
+				{
+					if (vlp[i].ty != vlpOriginType || vlp[j].ty != vlpTargetType)
+					{
+						continue;
+					}
+					double distance = (vlp[i].posvec - linker[j].posvec).Magnitude();
+					if (distance < threshold_distance)
+						countLinker++;
+				}
+			}
+		}
+    }			
+    
+    countLinker = countLinker / linker.size();    
+    framecountLinker = framecountLinker + countLinker;
+		
+  }    
+  
+  cout << "average number of bridging linkers per VLP of type" << vlpOriginType << "and type " << vlpTargetType << " is " << framecountLinker/totalframes << endl;
   cout << "\n";
   }
   

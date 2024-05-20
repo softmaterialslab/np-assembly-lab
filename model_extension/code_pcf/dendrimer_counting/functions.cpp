@@ -194,14 +194,6 @@ int select_gr(int vlpTypes, int *vlpOriginType, int *vlpTargetType, long double 
   return(1);
 }
 
-//Count average number of number of dendrimers per VLP type
-
-void count_dends()
-{
-  
-
-  return;  
-}
 
 //select for which VLP to compute dendrimer statistics
 int select_dend(int vlpTypes, int *vlpOriginType)
@@ -239,4 +231,99 @@ int select_dend(int vlpTypes, int *vlpOriginType)
   
   return(1);
 }
+
+// select target VLPs for bridging dendrimers
+int select_bridging(int vlpTypes, int *vlpOriginType, int *vlpTargetType)
+{
+  string grType;
+  int selfType, crossOriginType, crossTargetType;
+  
+  if (vlpTypes == 1)
+  {
+      cout << "\nfor a 1-component system, there is only 1 stype of VLP, proceeding to compute that..." << endl;
+      *vlpOriginType = 1;
+      *vlpTargetType = *vlpOriginType;
+  }
+  else if (vlpTypes == 2)
+  {
+      cout << "\nwe can cave brigdging dendrimers between the same type of VLPs (self), or between different tipes of VLPs (cross)" << endl;
+	  cout << "which type of bridging you want to count: self or cross?" << endl;
+      cin >> grType;
+      if (grType == "self")
+      {
+          cout << "Bridging between VLP type 1 and VLP type 1 (enter 1) OR VLP type 2 and VLP type 2 (enter 2)?" << endl;
+          cin >> selfType;
+          *vlpOriginType = selfType;
+          *vlpTargetType = *vlpOriginType;
+      }
+      else if (grType == "cross")
+      {
+          *vlpOriginType = 1;
+          *vlpTargetType = 2;
+
+      }
+      else
+      {
+          cout << "\nsomething is wrong--> check gr info...exiting..." << endl;
+          return(0);
+      }
+  }
+  else if (vlpTypes == 3)
+  {
+      cout << "\nwe can cave brigdging dendrimers between the same type of VLPs (self), or between different tipes of VLPs (cross)" << endl;
+	  cout << "which type of bridging you want to count: self or cross?" << endl;
+      cin >> grType;
+      if (grType == "self")
+      {
+          cout << "Bridging between VLP type 1 and VLP type 1 (enter 1) OR VLP type 2 and VLP type 2 (enter 2) OR between VLP type 3 and VLP type 3 (enter 4 <-- THIS IS NOT A TYPO)?" << endl;
+          cin >> selfType;
+          *vlpOriginType = selfType;
+          *vlpTargetType = *vlpOriginType;
+      }
+      else if (grType == "cross")
+      {
+          cout << "Bridging between between VLP type 1 and VLP type 2 (enter 1 ENTER 2) OR VLP type 1 and VLP type 3 (enter 1 ENTER 4) OR between VLP type 2 and VLP type 3 (enter 2 ENTER 4)?" << endl;
+          cin >> crossOriginType;
+          cin >> crossTargetType;
+          *vlpOriginType = crossOriginType;
+          *vlpTargetType = crossTargetType;
+
+      }
+      else
+      {
+          cout << "\nsomething is wrong--> check gr info...exiting..." << endl;
+          return(0);
+      }
+  }
+  else if (vlpTypes == 4)
+  {
+      cout << "\nwe can cave brigdging dendrimers between the same type of VLPs (self), or between different tipes of VLPs (cross)" << endl;
+	  cout << "which type of bridging you want to count: self or cross?" << endl;
+      cin >> grType;
+      if (grType == "self")
+      {
+          cout << "Bridging between between VLP type 1 and VLP type 1 (enter 1) OR VLP type 2 and VLP type 2 (enter 2) OR between VLP type 3 and VLP type 3 (enter 4 <-- THIS IS NOT A TYPO) OR between VLP type 5 and VLP type 5 (enter 5 <-- THIS IS NOT A TYPO)?" << endl;
+          cin >> selfType;
+          *vlpOriginType = selfType;
+          *vlpTargetType = *vlpOriginType;
+      }
+      else if (grType == "cross")
+      {
+          cout << "Bridging between VLP type 1 and VLP type 2 (enter 1 ENTER 2) OR VLP type 1 and VLP type 3 (enter 1 ENTER 4) OR VLP type 1 and VLP type 4 (enter 1 ENTER 5) OR between VLP type 2 and VLP type 3 (enter 2 ENTER 4) OR between VLP type 2 and VLP type 4 (enter 2 ENTER 5) OR between VLP type 2 and VLP type 4 (enter 2 ENTER 5) OR between VLP type 3 and VLP type 4 (enter 4 ENTER 5)?" << endl;
+          cin >> crossOriginType;
+          cin >> crossTargetType;
+          *vlpOriginType = crossOriginType;
+          *vlpTargetType = crossTargetType;
+ 
+      }
+      else
+      {
+          cout << "\nsomething is wrong--> check gr info...exiting..." << endl;
+          return(0);
+      }	  
+  }
+  cout << "\ncomputing " << grType << " g(r) between VLP type " <<  *vlpOriginType << " and VLP type " << *vlpTargetType << endl;
+  return(1);
+}
+
 
