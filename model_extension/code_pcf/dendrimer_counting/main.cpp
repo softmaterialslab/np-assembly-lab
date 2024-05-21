@@ -350,8 +350,7 @@ int main(int argc, char* argv[])
 	
 	for (unsigned int i  = 0; i < totalframes; i++)  
 	{
-    vector<PARTICLE> vlpOrigin; //VLPs of the Origin type
-	vector<PARTICLE> vlpTarget;
+    vector<PARTICLE> vlp; // all VLPs in system
     vector<PARTICLE> linker;
     int col1, col2; // id, type
     double col3, col4, col5; // x, y, z
@@ -382,25 +381,23 @@ int main(int argc, char* argv[])
     while (file >> col1 >> col2 >> col3 >> col4 >> col5)
     {
       PARTICLE myparticle = PARTICLE(col1, col2, VECTOR3D(col3, col4, col5));
-      if (col2 == vlpOriginType)
-          vlpOrigin.push_back(myparticle);
-	  else if (col2 == vlpTargetType)
-          vlpTarget.push_back(myparticle);
-
+      if (col2 != 3)
+          vlp.push_back(myparticle);
       else if (col2 == 3)
           linker.push_back(myparticle);
     }
 	
 	int counter;
+	int total_bridges = 0; // total number of bridging dendrimers per frame
 	
 	cout << "so far so good!" << endl;	
 		
-    //for (int i = 0; i < vlpOrigin.size(); i++)
-	for (int i = 0; i < 10; i++)
+    for (int i = 0; i < vlp.size(); i++)
+	//for (int i = 0; i < 10; i++)
     {
 		//cout << "i = " << i << endl;
 		int countLinkerAUX = 0; // counting only the condensed linkers 
-		int countLinker = 0; // counting only the bridging linkers for one frame
+		int countLinker = 0; // counting the bridging linkers 
 		if (vlpOriginType == vlpTargetType)
 		{
 			counter = i+1;
@@ -409,54 +406,64 @@ int main(int argc, char* argv[])
 		{
 			counter = 0;
 		}
+		
+		if (vlp[i].ty != vlpOriginType)
+		{
+			continue;
+		}
 			
         for (int j = 0; j < linker.size(); j++)
         {
-            double distanceOrigin = (vlpOrigin[i].posvec - linker[j].posvec).Magnitude();
+            double distanceOrigin = (vlp[i].posvec - linker[j].posvec).Magnitude();
             if (distanceOrigin < threshold_distance)
 			{
 				countLinkerAUX ++;
 				//cout << "found condensed dendrimer! loooking if it's a bridging one..." << endl;
 				//cout << "counter = " << counter << endl;
-				for (int k = counter; k < vlpTarget.size(); k++)	// issue reaching this loop!
+				for (int k = counter; k < vlp.size(); k++)	// issue reaching this loop!
 				{	
-					cout << k << endl;
-					double distanceTarget = (vlpTarget[k].posvec - linker[j].posvec).Magnitude();
+				    if (vlp[i].ty != vlpTargetType)
+					{
+						continue;
+					}
+				
+					//cout << k << endl;
+					double distanceTarget = (vlp[k].posvec - linker[j].posvec).Magnitude();
 					if (distanceTarget < threshold_distance)
 					{
-						cout << "\nfound one!" << endl;
+						//cout << "\nfound one!" << endl;
 						countLinker ++;
 					}
 				}
 			}
         } 
 
-	cout << "for VLP i = " << i << ", " << countLinkerAUX << " condensed dendrimers and "<< countLinker << " bridging dendimers were counted" << endl;
-	
+	//cout << "for VLP i = " << i << " (of type " << vlp[i].ty << "), " << countLinkerAUX << " condensed dendrimers and "<< countLinker << " bridging dendimers were counted" << endl;
+	total_bridges = total_bridges + countLinker ;
     }
+
+    int size_pertype = total_vlp_number/vlpTypes;
 	
-	//countLinkerAUX = countLinkerAUX / vlpOrigin.size();
-	//cout << "condensed dendrimers is " << countLinkerAUX << endl;
-    
-	//if (vlpOriginType == vlpTargetType)
-	//{
-	//	cout << "Total VLP number is " << vlpOrigin.size() << endl;
-	//	countLinker = countLinker / vlpOrigin.size();
-	//}
+	if (vlpOriginType == vlpTargetType)
+	{
+		cout << "Total VLP number is " << size_pertype << endl;
+		total_bridges = total_bridges / size_pertype;
+	}
 	
-	//if (vlpOriginType != vlpTargetType)
-	//{
-	//	int total_size = vlpOrigin.size() + vlpTarget.size();
-	//	cout << "Total VLP number is " << total_size << endl;
-	//	countLinker = countLinker / total_size ;
-	//}
+	if (vlpOriginType != vlpTargetType)
+	{
+		int total_size = 2 * size_pertype;
+		cout << "Total VLP number is " << total_size << endl;
+		total_bridges = total_bridges / total_size ;
+	}
 	       
-    //framecountLinker = framecountLinker + countLinker;
+    framecountLinker = framecountLinker + total_bridges;
 		
   }
   
-  //cout << "average number of bridging linkers per VLP of type " << vlpOriginType << " and type " << vlpTargetType << " is " << framecountLinker/totalframes << endl;
-  //cout << "\n";
+  cout << "\n";
+  cout << "\naverage number of bridging linkers per VLP of type " << vlpOriginType << " and type " << vlpTargetType << " is " << framecountLinker/totalframes << endl;
+  cout << "\n";
   }
   
   return 0;
