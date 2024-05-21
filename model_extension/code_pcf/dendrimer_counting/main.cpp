@@ -391,13 +391,16 @@ int main(int argc, char* argv[])
           linker.push_back(myparticle);
     }
 	
-	int countLinker = 0; // counting only the bridging linkers for one frame
 	int counter;
 	
 	cout << "so far so good!" << endl;	
 		
-    for (int i = 0; i < vlpOrigin.size(); i++)
+    //for (int i = 0; i < vlpOrigin.size(); i++)
+	for (int i = 0; i < 10; i++)
     {
+		//cout << "i = " << i << endl;
+		int countLinkerAUX = 0; // counting only the condensed linkers 
+		int countLinker = 0; // counting only the bridging linkers for one frame
 		if (vlpOriginType == vlpTargetType)
 		{
 			counter = i+1;
@@ -409,39 +412,51 @@ int main(int argc, char* argv[])
 			
         for (int j = 0; j < linker.size(); j++)
         {
-            double distance = (vlpOrigin[i].posvec - linker[j].posvec).Magnitude();
-            if (distance < threshold_distance)
+            double distanceOrigin = (vlpOrigin[i].posvec - linker[j].posvec).Magnitude();
+            if (distanceOrigin < threshold_distance)
 			{
-				cout << "n/found condensed dendrimer! loooking if it's a bridging one..." << endl;
-				for (unsigned int k = counter; k < vlpTarget.size(); k++)
-				{
-					double distance = (vlpTarget[k].posvec - linker[j].posvec).Magnitude();
-					if (distance < threshold_distance)
+				countLinkerAUX ++;
+				//cout << "found condensed dendrimer! loooking if it's a bridging one..." << endl;
+				//cout << "counter = " << counter << endl;
+				for (int k = counter; k < vlpTarget.size(); k++)	// issue reaching this loop!
+				{	
+					cout << k << endl;
+					double distanceTarget = (vlpTarget[k].posvec - linker[j].posvec).Magnitude();
+					if (distanceTarget < threshold_distance)
+					{
+						cout << "\nfound one!" << endl;
 						countLinker ++;
+					}
 				}
 			}
-        }        
-    }
-    
-	if (vlpOriginType == vlpTargetType)
-	{
-		cout << "Total VLP number is " << vlpOrigin.size() << endl;
-		countLinker = countLinker / vlpOrigin.size();
-	}
+        } 
+
+	cout << "for VLP i = " << i << ", " << countLinkerAUX << " condensed dendrimers and "<< countLinker << " bridging dendimers were counted" << endl;
 	
-	if (vlpOriginType != vlpTargetType)
-	{
-		int total_size = vlpOrigin.size() + vlpTarget.size();
-		cout << "Total VLP number is " << total_size << endl;
-		countLinker = countLinker / total_size ;
-	}
+    }
+	
+	//countLinkerAUX = countLinkerAUX / vlpOrigin.size();
+	//cout << "condensed dendrimers is " << countLinkerAUX << endl;
+    
+	//if (vlpOriginType == vlpTargetType)
+	//{
+	//	cout << "Total VLP number is " << vlpOrigin.size() << endl;
+	//	countLinker = countLinker / vlpOrigin.size();
+	//}
+	
+	//if (vlpOriginType != vlpTargetType)
+	//{
+	//	int total_size = vlpOrigin.size() + vlpTarget.size();
+	//	cout << "Total VLP number is " << total_size << endl;
+	//	countLinker = countLinker / total_size ;
+	//}
 	       
-    framecountLinker = framecountLinker + countLinker;
+    //framecountLinker = framecountLinker + countLinker;
 		
   }
   
-  cout << "average number of bridging linkers per VLP of type " << vlpOriginType << " and type " << vlpTargetType << " is " << framecountLinker/totalframes << endl;
-  cout << "\n";
+  //cout << "average number of bridging linkers per VLP of type " << vlpOriginType << " and type " << vlpTargetType << " is " << framecountLinker/totalframes << endl;
+  //cout << "\n";
   }
   
   return 0;
