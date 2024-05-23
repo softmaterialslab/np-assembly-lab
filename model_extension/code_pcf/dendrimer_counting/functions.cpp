@@ -194,136 +194,135 @@ int select_gr(int vlpTypes, int *vlpOriginType, int *vlpTargetType, long double 
   return(1);
 }
 
-
-//select for which VLP to compute dendrimer statistics
-int select_dend(int vlpTypes, int *vlpOriginType)
+//compute dendrimer statistics
+void calculate_dendrimers(int vlpTypes, int vlpOriginType, int vlpTargetType, double threshold_distance, int total_vlp_number, int data_collect_frequency, int start_filenumber, int samples, int totalframes, int skipFrames)
 {
-  int selfType;
-  cout << "\nATTENTION: number 3 is reserved for dendrimers" << endl;
+	
+	int framecountLinkerBridge = 0; // counting for all frames
+	int framecountLinkerCondensed = 0; // counting for all frames
+	
+for (unsigned int i  = 0; i < totalframes; i++)  
+	{
+    vector<PARTICLE> vlp; // all VLPs in system
+    vector<PARTICLE> linker;
+    int col1, col2; // id, type
+    double col3, col4, col5; // x, y, z
+        
+    char filename[100];
+    int filenumber = start_filenumber + i*data_collect_frequency;
+    
+    if (filenumber%skipFrames !=0) continue; // skip every skipFrames
+    
+    sprintf(filename, "frame%d", filenumber);
+    ifstream file(filename, ios::in); // reading data from a file
+    if (!file) 
+    {
+      cout << "File could not be opened" << endl;
+      continue;
+    }
+    else if (filenumber%10==0)
+      cout << "read frame" << filenumber << endl;
+    
+    samples++;
+    
+    for (int i = 1; i <= 9; i++)
+    {
+      string dummyline;
+      getline(file, dummyline); // ignoring the first 9 lines that act as dummylines
+    }
+    
+    while (file >> col1 >> col2 >> col3 >> col4 >> col5)
+    {
+      PARTICLE myparticle = PARTICLE(col1, col2, VECTOR3D(col3, col4, col5));
+      if (col2 != 3)
+          vlp.push_back(myparticle);
+      else if (col2 == 3)
+          linker.push_back(myparticle);
+    }
+	
+	int counter;
+	int total_bridges = 0; // total number of bridging dendrimers per frame
+	int total_condensed = 0; // total number of condensed dendrimers per frame
+	
+	//cout << "so far so good!" << endl;	
+		
+    for (int i = 0; i < vlp.size(); i++)
+	//for (int i = 0; i < 10; i++)
+    {
+		//cout << "i = " << i << endl;
+		int countLinkerAUX = 0; // counting only the condensed linkers 
+		int countLinker = 0; // counting the bridging linkers 
+		if (vlpOriginType == vlpTargetType)
+		{
+			counter = i+1;
+		}
+		else
+		{
+			counter = 0;
+		}
+		
+		if (vlp[i].ty != vlpOriginType)
+		{
+			continue;
+		}
+			
+        for (int j = 0; j < linker.size(); j++)
+        {
+            double distanceOrigin = (vlp[i].posvec - linker[j].posvec).Magnitude();
+            if (distanceOrigin < threshold_distance)
+			{
+				countLinkerAUX ++;
+				//cout << "found condensed dendrimer! loooking if it's a bridging one..." << endl;
+				//cout << "counter = " << counter << endl;
+				for (int k = counter; k < vlp.size(); k++)	// issue reaching this loop!
+				{	
+				    if (vlp[i].ty != vlpTargetType)
+					{
+						continue;
+					}
+				
+					//cout << k << endl;
+					double distanceTarget = (vlp[k].posvec - linker[j].posvec).Magnitude();
+					if (distanceTarget < threshold_distance)
+					{
+						//cout << "\nfound one!" << endl;
+						countLinker ++;
+					}
+				}
+			}
+        } 
+
+	//cout << "for VLP i = " << i << " (of type " << vlp[i].ty << "), " << countLinkerAUX << " condensed dendrimers and "<< countLinker << " bridging dendimers were counted" << endl;
+	total_bridges = total_bridges + countLinker ;
+	total_condensed = total_condensed + countLinkerAUX ;
+    }
+	
+	int size_pertype = total_vlp_number/vlpTypes;
+	
+	if (vlpOriginType == vlpTargetType)
+	{
+		//cout << "Total VLP number is " << size_pertype << endl;
+		total_bridges = total_bridges / size_pertype;
+		total_condensed = total_condensed / size_pertype;
+	}
+	
+	if (vlpOriginType != vlpTargetType)
+	{
+		int total_size = 2 * size_pertype;
+		//cout << "Total VLP number is " << total_size << endl;
+		total_bridges = total_bridges / total_size ;
+		total_condensed = total_condensed / total_size ;
+	}
+	       
+        framecountLinkerBridge = framecountLinkerBridge + total_bridges;
+	    framecountLinkerCondensed = framecountLinkerCondensed + total_condensed;
+	
+	}
+
+    if (vlpOriginType == vlpTargetType)
+    {
+	    cout << "\naverage number of condensed linkers per VLP of type " << vlpOriginType << " is " << framecountLinkerCondensed/totalframes << endl;
+    }
   
-  if (vlpTypes == 1)
-  {
-      cout << "\nfor a 1-component system, there is only 1 option. proceeding to compute that..." << endl;
-      *vlpOriginType = 1;
-  }
-  else if (vlpTypes == 2)
-  {
-      cout <<"\nfor a 2-component system, there are 2 types of VLPs"<< endl;
-	  cout << "\nFor which VLP do you wish to calculate the dendrimer statistics? For VLP type 1 enter 1, for VLP type 2, enter 2" << endl;
-      cin >> selfType;
-	  *vlpOriginType = selfType;
-  }
-  else if (vlpTypes == 3)
-  {
-      cout << "\nfor a 3-component system, there are 3 types of VLPs" << endl;
-      cout << "\nFor which VLP do you wish to calculate the dendrimer statistics? For VLP type 1 enter 1. For VLP type 2, enter 2. For VLP 3, enter 4 (<-- THIS IS NOT A TYPO)" << endl;
-      cin >> selfType;
-	  *vlpOriginType = selfType;
-  }
-  else if (vlpTypes == 4)
-  {
-      cout << "\nfor a 4-component system, there are 4 types of VLPs" << endl;
-      cout << "\nFor which VLP do you wish to calculate the dendrimer statistics? For VLP type 1 enter 1. For VLP type 2, enter 2. For VLP 3, enter 4 (<-- THIS IS NOT A TYPO). For VLP 4, enter 5 (<-- THIS IS NOT A TYPO)" << endl;
-      cin >> selfType;
-	  *vlpOriginType = selfType;
-  }
-  cout << "\ncomputing dendrimer statistics for VLP type " <<  *vlpOriginType <<  endl;
-  
-  return(1);
+  cout << "average number of bridging linkers per VLP  between (type " << vlpOriginType << " and type " << vlpTargetType << ") is " << framecountLinkerBridge/totalframes << endl;
 }
-
-// select target VLPs for bridging dendrimers
-int select_bridging(int vlpTypes, int *vlpOriginType, int *vlpTargetType)
-{
-  string grType;
-  int selfType, crossOriginType, crossTargetType;
-  
-  if (vlpTypes == 1)
-  {
-      cout << "\nfor a 1-component system, there is only 1 stype of VLP, proceeding to compute that..." << endl;
-      *vlpOriginType = 1;
-      *vlpTargetType = *vlpOriginType;
-  }
-  else if (vlpTypes == 2)
-  {
-      cout << "\nwe can cave brigdging dendrimers between the same type of VLPs (self), or between different tipes of VLPs (cross)" << endl;
-	  cout << "which type of bridging you want to count: self or cross?" << endl;
-      cin >> grType;
-      if (grType == "self")
-      {
-          cout << "Bridging between VLP type 1 and VLP type 1 (enter 1) OR VLP type 2 and VLP type 2 (enter 2)?" << endl;
-          cin >> selfType;
-          *vlpOriginType = selfType;
-          *vlpTargetType = *vlpOriginType;
-      }
-      else if (grType == "cross")
-      {
-          *vlpOriginType = 1;
-          *vlpTargetType = 2;
-
-      }
-      else
-      {
-          cout << "\nsomething is wrong--> check gr info...exiting..." << endl;
-          return(0);
-      }
-  }
-  else if (vlpTypes == 3)
-  {
-      cout << "\nwe can cave brigdging dendrimers between the same type of VLPs (self), or between different tipes of VLPs (cross)" << endl;
-	  cout << "which type of bridging you want to count: self or cross?" << endl;
-      cin >> grType;
-      if (grType == "self")
-      {
-          cout << "Bridging between VLP type 1 and VLP type 1 (enter 1) OR VLP type 2 and VLP type 2 (enter 2) OR between VLP type 3 and VLP type 3 (enter 4 <-- THIS IS NOT A TYPO)?" << endl;
-          cin >> selfType;
-          *vlpOriginType = selfType;
-          *vlpTargetType = *vlpOriginType;
-      }
-      else if (grType == "cross")
-      {
-          cout << "Bridging between between VLP type 1 and VLP type 2 (enter 1 ENTER 2) OR VLP type 1 and VLP type 3 (enter 1 ENTER 4) OR between VLP type 2 and VLP type 3 (enter 2 ENTER 4)?" << endl;
-          cin >> crossOriginType;
-          cin >> crossTargetType;
-          *vlpOriginType = crossOriginType;
-          *vlpTargetType = crossTargetType;
-
-      }
-      else
-      {
-          cout << "\nsomething is wrong--> check gr info...exiting..." << endl;
-          return(0);
-      }
-  }
-  else if (vlpTypes == 4)
-  {
-      cout << "\nwe can cave brigdging dendrimers between the same type of VLPs (self), or between different tipes of VLPs (cross)" << endl;
-	  cout << "which type of bridging you want to count: self or cross?" << endl;
-      cin >> grType;
-      if (grType == "self")
-      {
-          cout << "Bridging between between VLP type 1 and VLP type 1 (enter 1) OR VLP type 2 and VLP type 2 (enter 2) OR between VLP type 3 and VLP type 3 (enter 4 <-- THIS IS NOT A TYPO) OR between VLP type 5 and VLP type 5 (enter 5 <-- THIS IS NOT A TYPO)?" << endl;
-          cin >> selfType;
-          *vlpOriginType = selfType;
-          *vlpTargetType = *vlpOriginType;
-      }
-      else if (grType == "cross")
-      {
-          cout << "Bridging between VLP type 1 and VLP type 2 (enter 1 ENTER 2) OR VLP type 1 and VLP type 3 (enter 1 ENTER 4) OR VLP type 1 and VLP type 4 (enter 1 ENTER 5) OR between VLP type 2 and VLP type 3 (enter 2 ENTER 4) OR between VLP type 2 and VLP type 4 (enter 2 ENTER 5) OR between VLP type 2 and VLP type 4 (enter 2 ENTER 5) OR between VLP type 3 and VLP type 4 (enter 4 ENTER 5)?" << endl;
-          cin >> crossOriginType;
-          cin >> crossTargetType;
-          *vlpOriginType = crossOriginType;
-          *vlpTargetType = crossTargetType;
- 
-      }
-      else
-      {
-          cout << "\nsomething is wrong--> check gr info...exiting..." << endl;
-          return(0);
-      }	  
-  }
-  cout << "\ncomputing " << grType << " g(r) between VLP type " <<  *vlpOriginType << " and VLP type " << *vlpTargetType << endl;
-  return(1);
-}
-
-

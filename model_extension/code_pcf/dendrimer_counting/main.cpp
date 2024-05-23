@@ -1,4 +1,4 @@
-// Last update: May 20th, 2024
+// Last update: May 23rd, 2024
 // This is main.
 
 #include<iostream>
@@ -23,21 +23,16 @@ long double unitlength;
 int select_gr(int, int*, int*, long double*, int, int, long double);
 
 
-
-//select VLP for dendrimer stats
-//for condensed dendrimers
-// vlpTypes, vlpOriginType
-int select_dend(int, int*);
-
-//for bridging dendrimers
-// vlpTypes, vlpOriginType, vlpTargetType
-int select_bridging(int, int*, int*);
-
 // compute g(r)
 // stage, g(bin), samples, vlps, edge, vlpOrgTy, vlpTarTy, bw, rho_bulk.
 void compute_gr(int, vector<BINCONTAINER>&, unsigned int, vector<PARTICLE>&, long double, int, int, double, long double);
 
-//compute dendrimer stats
+//compute dendrimer stats (condensed and bridging dendrimers)
+// vlp type, vlpOrgTy, vlpTarTy, threshold_distance
+void calculate_dendrimers(int, int, int, double, int, int, int, int, int, int);
+
+
+
 //in main code
 
 //begin:
@@ -122,7 +117,7 @@ int main(int argc, char* argv[])
   
   double threshold_distance;
   
-  cout << "Do you wish to calculate any PCFs between VLPs (not recommended with dumpAll.melt file)? enter YES = 1 or NO = 0" << endl;
+  cout << "Do you wish to calculate any PCFs between VLPs (NOT recommended with dumpAll.melt file)? enter YES = 1 or NO = 0" << endl;
   cin >> PCF_answer;
   if (PCF_answer == 1)
   {
@@ -143,19 +138,8 @@ int main(int argc, char* argv[])
   if (dend_answer == 1)
   {
 	  cout << "Dendrimer counting will be performed." << endl;
-      double threshold_factor;
-      cout << "enter threshold factor that will multiply the touch distance between vlp and linker (1, 1.05, etc.)" << endl;
-      cin >> threshold_factor;
-      threshold_distance = threshold_factor * 0.5 * (vlp_diameter+dend_diameter)/1e9/unitlength;
-      cout << "threshold distance in reduced units is: " << threshold_distance << endl;
-	  
-	  cout << "Perform counting of condensed dendrimers for a specific VLP type? enter YES = 1 or NO = 0" << endl;
-	  cin >> condensed_answer;
-	  
-	  cout << "Perform counting of bridging dendrimers? enter YES = 1 or NO = 0" << endl;
-	  cin >> bridging_answer;
   }
-  else if (PCF_answer == 0)
+  else if (dend_answer == 0)
   {
 	  cout << "dendrimers will not be counted" << endl;
 
@@ -166,7 +150,6 @@ int main(int argc, char* argv[])
 	  return(0);
   }
    
-
     
   /* --------- dataset details & preparation --------- */
   
@@ -192,8 +175,16 @@ int main(int argc, char* argv[])
   
   if (PCF_answer == 1)
   {
-  cout << "enter bin width (common: 0.01, 0.005, 0.001)" << endl;
-  cin >> bin_width;
+	cout << "enter bin width (common: 0.01, 0.005, 0.001)" << endl;
+	cin >> bin_width;
+  }
+  if (dend_answer == 1)
+  {
+	double threshold_factor;
+    cout << "enter threshold factor that will multiply the touch distance between vlp and linker (1, 1.05, etc.)" << endl;
+    cin >> threshold_factor;
+    threshold_distance = threshold_factor * 0.5 * (vlp_diameter+dend_diameter)/1e9/unitlength;
+    cout << "threshold distance in reduced units is: " << threshold_distance << endl;
   }
   
   bool atleastonefile = false;
@@ -209,7 +200,6 @@ int main(int argc, char* argv[])
   
   if (PCF_answer == 1)
   {
-  
 	int grSelection = select_gr(vlpTypes, &vlpOriginType, &vlpTargetType, &bulk_density_per_variant_for_norm, total_vlp_number, vlpTypes, simulationBoxVolume);
 	if (grSelection == 0) 
 	{
@@ -266,204 +256,133 @@ int main(int argc, char* argv[])
 	compute_gr(2,gr,samples,dummy_vlp,edge_length,vlpOriginType,vlpTargetType,bin_width,bulk_density_per_variant_for_norm);
   }
 
-  if (condensed_answer == 1)
+   
+  if (dend_answer ==1)
   {
-    int dend_selection = select_dend(vlpTypes, &vlpOriginType);
-    int framecountLinker = 0; // counting for all frames
-	                
-    if (dend_selection == 0) 
+	
+	if (vlpTypes == 1)
 	{
-      cout << "\nsomething is wrong--> check gr info...exiting..." << endl;
-      return 0;
-    }	
+      vlpOriginType = 1;
+      vlpTargetType = vlpOriginType;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	}
 	
-	for (unsigned int i = 0; i < totalframes; i++)  
+	if (vlpTypes == 2)
 	{
-    vector<PARTICLE> vlp_specific; // specific VLPs
-    vector<PARTICLE> linker;
-    int col1, col2; // id, type
-    double col3, col4, col5; // x, y, z
-    
-    
-    char filename[100];
-    int filenumber = start_filenumber + i*data_collect_frequency;
-    
-    if (filenumber%skipFrames !=0) continue; // skip every skipFrames
-    
-    sprintf(filename, "frame%d", filenumber);
-    ifstream file(filename, ios::in); // reading data from a file
-    if (!file) 
-    {
-      cout << "File could not be opened" << endl;
-      continue;
-    }
-    else if (filenumber%10==0)
-      cout << "read frame" << filenumber << endl;
-    
-    samples++;
-    
-    for (int i = 1; i <= 9; i++)
-    {
-      string dummyline;
-      getline(file, dummyline); // ignoring the first 9 lines that act as dummylines
-    }
-    
-    while (file >> col1 >> col2 >> col3 >> col4 >> col5)
-    {
-      PARTICLE myparticle = PARTICLE(col1, col2, VECTOR3D(col3, col4, col5));
-      if (col2 == vlpOriginType)
-          vlp_specific.push_back(myparticle);
-      else if (col2 == 3)
-          linker.push_back(myparticle);
-    }
+
+	  //go over possibilities:
+	  
+	  //1-1:
+      vlpOriginType = 1;
+      vlpTargetType = vlpOriginType;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	  //2-2:
+	  vlpOriginType = 2;
+      vlpTargetType = vlpOriginType;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	  //1-2:
+      vlpOriginType = 1;
+      vlpTargetType = 2;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	}
 	
-	int countLinker = 0; // counting only the condensed linkers for one frame
-    for (int i = 0; i < vlp_specific.size(); i++)
-    {
-        for (int j = 0; j < linker.size(); j++)
-        {
-            double distance = (vlp_specific[i].posvec - linker[j].posvec).Magnitude();
-            if (distance < threshold_distance)
-                countLinker++;
-        }        
-    }
-    
-    countLinker = countLinker / vlp_specific.size();    
-    framecountLinker = framecountLinker + countLinker;
-		
-  }
-  
-  cout << "number of condensed linkers per VLP of type:" << vlpOriginType << " are " << framecountLinker/totalframes << endl;
-  cout << "\n";
-  }
-  
-  if (bridging_answer ==1)
-  {
-	int bridging_selection = select_bridging(vlpTypes, &vlpOriginType, &vlpTargetType);
-    int framecountLinker = 0; // counting for all frames
-	                
-    if (bridging_selection == 0) 
+	if (vlpTypes == 3)
 	{
-      cout << "\nsomething is wrong--> ...exiting..." << endl;
-      return 0;
-    }	
+
+	  //go over possibilities:
+	  
+	  //1-1:
+      vlpOriginType = 1;
+      vlpTargetType = vlpOriginType;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	  //2-2:
+	  vlpOriginType = 2;
+      vlpTargetType = vlpOriginType;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	  //3-3: remember type 3 = dendrimer
+	  vlpOriginType = 4;
+      vlpTargetType = vlpOriginType;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	  //1-2:
+      vlpOriginType = 1;
+      vlpTargetType = 2;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	  //1-3:
+      vlpOriginType = 1;
+      vlpTargetType = 4;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	  //2-3:
+      vlpOriginType = 2;
+      vlpTargetType = 4;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	}
 	
-	for (unsigned int i  = 0; i < totalframes; i++)  
+		if (vlpTypes == 4)
 	{
-    vector<PARTICLE> vlp; // all VLPs in system
-    vector<PARTICLE> linker;
-    int col1, col2; // id, type
-    double col3, col4, col5; // x, y, z
-        
-    char filename[100];
-    int filenumber = start_filenumber + i*data_collect_frequency;
-    
-    if (filenumber%skipFrames !=0) continue; // skip every skipFrames
-    
-    sprintf(filename, "frame%d", filenumber);
-    ifstream file(filename, ios::in); // reading data from a file
-    if (!file) 
-    {
-      cout << "File could not be opened" << endl;
-      continue;
-    }
-    else if (filenumber%10==0)
-      cout << "read frame" << filenumber << endl;
-    
-    samples++;
-    
-    for (int i = 1; i <= 9; i++)
-    {
-      string dummyline;
-      getline(file, dummyline); // ignoring the first 9 lines that act as dummylines
-    }
-    
-    while (file >> col1 >> col2 >> col3 >> col4 >> col5)
-    {
-      PARTICLE myparticle = PARTICLE(col1, col2, VECTOR3D(col3, col4, col5));
-      if (col2 != 3)
-          vlp.push_back(myparticle);
-      else if (col2 == 3)
-          linker.push_back(myparticle);
-    }
-	
-	int counter;
-	int total_bridges = 0; // total number of bridging dendrimers per frame
-	
-	cout << "so far so good!" << endl;	
-		
-    for (int i = 0; i < vlp.size(); i++)
-	//for (int i = 0; i < 10; i++)
-    {
-		//cout << "i = " << i << endl;
-		int countLinkerAUX = 0; // counting only the condensed linkers 
-		int countLinker = 0; // counting the bridging linkers 
-		if (vlpOriginType == vlpTargetType)
-		{
-			counter = i+1;
-		}
-		else
-		{
-			counter = 0;
-		}
-		
-		if (vlp[i].ty != vlpOriginType)
-		{
-			continue;
-		}
+
+	  //go over possibilities:
+	  
+	  //1-1:
+      vlpOriginType = 1;
+      vlpTargetType = vlpOriginType;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	  //2-2:
+	  vlpOriginType = 2;
+      vlpTargetType = vlpOriginType;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	  //3-3: remember type 3 = dendrimer
+	  vlpOriginType = 4;
+      vlpTargetType = vlpOriginType;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	  //4-4:
+	  vlpOriginType = 5;
+      vlpTargetType = vlpOriginType;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	  //1-2:
+      vlpOriginType = 1;
+      vlpTargetType = 2;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	  //1-3:
+      vlpOriginType = 1;
+      vlpTargetType = 4;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	  //1-4:
+      vlpOriginType = 1;
+      vlpTargetType = 5;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	  //2-3:
+      vlpOriginType = 2;
+      vlpTargetType = 4;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	  //2-4:
+      vlpOriginType = 2;
+      vlpTargetType = 5;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  
+	  //2-3:
+      vlpOriginType = 4;
+      vlpTargetType = 5;
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  	  
+	}
 			
-        for (int j = 0; j < linker.size(); j++)
-        {
-            double distanceOrigin = (vlp[i].posvec - linker[j].posvec).Magnitude();
-            if (distanceOrigin < threshold_distance)
-			{
-				countLinkerAUX ++;
-				//cout << "found condensed dendrimer! loooking if it's a bridging one..." << endl;
-				//cout << "counter = " << counter << endl;
-				for (int k = counter; k < vlp.size(); k++)	// issue reaching this loop!
-				{	
-				    if (vlp[i].ty != vlpTargetType)
-					{
-						continue;
-					}
-				
-					//cout << k << endl;
-					double distanceTarget = (vlp[k].posvec - linker[j].posvec).Magnitude();
-					if (distanceTarget < threshold_distance)
-					{
-						//cout << "\nfound one!" << endl;
-						countLinker ++;
-					}
-				}
-			}
-        } 
-
-	//cout << "for VLP i = " << i << " (of type " << vlp[i].ty << "), " << countLinkerAUX << " condensed dendrimers and "<< countLinker << " bridging dendimers were counted" << endl;
-	total_bridges = total_bridges + countLinker ;
-    }
-
-    int size_pertype = total_vlp_number/vlpTypes;
-	
-	if (vlpOriginType == vlpTargetType)
-	{
-		cout << "Total VLP number is " << size_pertype << endl;
-		total_bridges = total_bridges / size_pertype;
-	}
-	
-	if (vlpOriginType != vlpTargetType)
-	{
-		int total_size = 2 * size_pertype;
-		cout << "Total VLP number is " << total_size << endl;
-		total_bridges = total_bridges / total_size ;
-	}
-	       
-    framecountLinker = framecountLinker + total_bridges;
-		
-  }
-  
-  cout << "\n";
-  cout << "\naverage number of bridging linkers per VLP of type " << vlpOriginType << " and type " << vlpTargetType << " is " << framecountLinker/totalframes << endl;
-  cout << "\n";
   }
   
   return 0;
