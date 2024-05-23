@@ -260,7 +260,7 @@ int main(int argc, char* argv[])
   if (dend_answer ==1)
   {
 	
-	if (vlpTypes == 1)
+	if (vlpTypes == 1) //Note: For 1-component mixtures, VLP =1 and dendrimer = 2!!!
 	{
       vlpOriginType = 1;
       vlpTargetType = vlpOriginType;
