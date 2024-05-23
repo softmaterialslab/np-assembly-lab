@@ -217,11 +217,11 @@ for (unsigned int i  = 0; i < totalframes; i++)
     ifstream file(filename, ios::in); // reading data from a file
     if (!file) 
     {
-      cout << "File could not be opened" << endl;
+      //cout << "File could not be opened" << endl;
       continue;
     }
     else if (filenumber%10==0)
-      cout << "read frame" << filenumber << endl;
+      //cout << "read frame" << filenumber << endl;
     
     samples++;
     
@@ -233,11 +233,23 @@ for (unsigned int i  = 0; i < totalframes; i++)
     
     while (file >> col1 >> col2 >> col3 >> col4 >> col5)
     {
-      PARTICLE myparticle = PARTICLE(col1, col2, VECTOR3D(col3, col4, col5));
-      if (col2 != 3)
-          vlp.push_back(myparticle);
-      else if (col2 == 3)
-          linker.push_back(myparticle);
+	  PARTICLE myparticle = PARTICLE(col1, col2, VECTOR3D(col3, col4, col5));
+	  if (vlpTypes != 1)
+	  {
+		
+			if (col2 != 3)
+				vlp.push_back(myparticle);
+			else if (col2 == 3)
+				linker.push_back(myparticle);  
+	  }
+	  else if (vlpTypes == 1)
+	  {
+			if (col2 != 2)
+				vlp.push_back(myparticle);
+			else if (col2 == 2)
+				linker.push_back(myparticle);		  
+	  }
+      
     }
 	
 	int counter;
@@ -326,3 +338,4 @@ for (unsigned int i  = 0; i < totalframes; i++)
   
   cout << "average number of bridging linkers per VLP  between (type " << vlpOriginType << " and type " << vlpTargetType << ") is " << framecountLinkerBridge/totalframes << endl;
 }
+
