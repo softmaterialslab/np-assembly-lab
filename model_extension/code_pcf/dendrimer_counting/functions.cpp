@@ -235,21 +235,20 @@ for (unsigned int i  = 0; i < totalframes; i++)
     {
 	  PARTICLE myparticle = PARTICLE(col1, col2, VECTOR3D(col3, col4, col5));
 	  if (vlpTypes != 1)
-	  {
-		
+	  {		
 			if (col2 != 3)
 				vlp.push_back(myparticle);
 			else if (col2 == 3)
 				linker.push_back(myparticle);  
 	  }
+	  
 	  else if (vlpTypes == 1)
 	  {
 			if (col2 != 2)
 				vlp.push_back(myparticle);
 			else if (col2 == 2)
 				linker.push_back(myparticle);		  
-	  }
-      
+	  }      
     }
 	
 	int counter;
@@ -288,7 +287,7 @@ for (unsigned int i  = 0; i < totalframes; i++)
 				//cout << "counter = " << counter << endl;
 				for (int k = counter; k < vlp.size(); k++)	// issue reaching this loop!
 				{	
-				    if (vlp[i].ty != vlpTargetType)
+				    if (vlp[k].ty != vlpTargetType)
 					{
 						continue;
 					}
@@ -336,6 +335,6 @@ for (unsigned int i  = 0; i < totalframes; i++)
 	    cout << "\naverage number of condensed linkers per VLP of type " << vlpOriginType << " is " << framecountLinkerCondensed/totalframes << endl;
     }
   
-  cout << "average number of bridging linkers per VLP  between (type " << vlpOriginType << " and type " << vlpTargetType << ") is " << framecountLinkerBridge/totalframes << endl;
+  cout << "\naverage number of bridging linkers per VLP  between (type " << vlpOriginType << " and type " << vlpTargetType << ") is " << framecountLinkerBridge/totalframes << endl;
 }
 
