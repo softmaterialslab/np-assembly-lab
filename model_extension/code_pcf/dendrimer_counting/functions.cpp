@@ -195,8 +195,10 @@ int select_gr(int vlpTypes, int *vlpOriginType, int *vlpTargetType, long double 
 }
 
 //compute dendrimer statistics
-void calculate_dendrimers(int vlpTypes, int vlpOriginType, int vlpTargetType, double threshold_distance, int total_vlp_number, int data_collect_frequency, int start_filenumber, int samples, int totalframes, int skipFrames)
+void calculate_dendrimers(int vlpTypes, int vlpOriginType, int vlpTargetType, double threshold_distance, int total_vlp_number, int data_collect_frequency, int start_filenumber, int samples, int totalframes, int skipFrames, long double L)
 {
+    
+    cout << "computing dendrimer statistics ... " << endl;
 	
 	int framecountLinkerBridge = 0; // counting for all frames
 	int framecountLinkerCondensed = 0; // counting for all frames
@@ -221,7 +223,7 @@ for (unsigned int i  = 0; i < totalframes; i++)
       continue;
     }
     else if (filenumber%10==0)
-      //cout << "read frame" << filenumber << endl;
+      cout << "read frame" << filenumber << endl;
     
     samples++;
     
@@ -279,12 +281,23 @@ for (unsigned int i  = 0; i < totalframes; i++)
 			
         for (int j = 0; j < linker.size(); j++)
         {
-            double distanceOrigin = (vlp[i].posvec - linker[j].posvec).Magnitude();
+            VECTOR3D distanceOriginvec = vlp[i].posvec - linker[j].posvec;
+            if (distanceOriginvec.x>L/2) distanceOriginvec.x -= L;
+            if (distanceOriginvec.x<-L/2) distanceOriginvec.x += L;
+            if (distanceOriginvec.y>L/2) distanceOriginvec.y -= L;
+            if (distanceOriginvec.y<-L/2) distanceOriginvec.y += L;
+            if (distanceOriginvec.z>L/2) distanceOriginvec.z -= L;
+            if (distanceOriginvec.z<-L/2) distanceOriginvec.z += L;
+                   
+            //double distanceOrigin = (vlp[i].posvec - linker[j].posvec).Magnitude();
+            double distanceOrigin = (distanceOriginvec).Magnitude();
+            
             if (distanceOrigin < threshold_distance)
 			{
 				countLinkerAUX ++;
 				//cout << "found condensed dendrimer! loooking if it's a bridging one..." << endl;
 				//cout << "counter = " << counter << endl;
+                // here we do bridging computation
 				for (int k = counter; k < vlp.size(); k++)	// issue reaching this loop!
 				{	
 				    if (vlp[k].ty != vlpTargetType)
@@ -293,7 +306,18 @@ for (unsigned int i  = 0; i < totalframes; i++)
 					}
 				
 					//cout << k << endl;
-					double distanceTarget = (vlp[k].posvec - linker[j].posvec).Magnitude();
+					
+					VECTOR3D distanceTargetvec = vlp[k].posvec - linker[j].posvec;
+                    if (distanceTargetvec.x>L/2) distanceTargetvec.x -= L;
+                    if (distanceTargetvec.x<-L/2) distanceTargetvec.x += L;
+                    if (distanceTargetvec.y>L/2) distanceTargetvec.y -= L;
+                    if (distanceTargetvec.y<-L/2) distanceTargetvec.y += L;
+                    if (distanceTargetvec.z>L/2) distanceTargetvec.z -= L;
+                    if (distanceTargetvec.z<-L/2) distanceTargetvec.z += L;
+					
+					//double distanceTarget = (vlp[k].posvec - linker[j].posvec).Magnitude();
+                    double distanceTarget = (distanceTargetvec).Magnitude();
+                    
 					if (distanceTarget < threshold_distance)
 					{
 						//cout << "\nfound one!" << endl;

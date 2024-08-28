@@ -1,2 +1,14 @@
 2023.02.21: latest code to compute pcf for single comp
 2023.11.02: commit code, bin position centering issue fixed, normalization issue fixed, code extended to handle multiple components and self vs cross inputs
+
+2024.08:
+sample strings and commands:
+Dv/dd/cv/cd/#vlps/L/components/PCF?/dend/frames/start frame/separation/skip/ threshold
+tail -n 15150900 dumpAll.melt > last100frames.out
+awk '/ITEM: TIMESTEP/{x="frame"++i;}{print > x;}' last100frames.out
+
+tail number will change.
+
+first loop over vlp is condensed
+second loop over vlp is for bridging
+fixed distance calculation

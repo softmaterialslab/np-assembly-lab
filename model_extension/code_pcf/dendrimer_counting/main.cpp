@@ -29,7 +29,7 @@ void compute_gr(int, vector<BINCONTAINER>&, unsigned int, vector<PARTICLE>&, lon
 
 //compute dendrimer stats (condensed and bridging dendrimers)
 // vlp type, vlpOrgTy, vlpTarTy, threshold_distance
-void calculate_dendrimers(int, int, int, double, int, int, int, int, int, int);
+void calculate_dendrimers(int, int, int, double, int, int, int, int, int, int, long double);
 
 
 
@@ -264,7 +264,7 @@ int main(int argc, char* argv[])
 	{
       vlpOriginType = 1;
       vlpTargetType = vlpOriginType;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	}
 	
 	if (vlpTypes == 2)
@@ -275,17 +275,17 @@ int main(int argc, char* argv[])
 	  //1-1:
       vlpOriginType = 1;
       vlpTargetType = vlpOriginType;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	  //2-2:
 	  vlpOriginType = 2;
       vlpTargetType = vlpOriginType;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	  //1-2:
       vlpOriginType = 1;
       vlpTargetType = 2;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	}
 	
@@ -297,32 +297,32 @@ int main(int argc, char* argv[])
 	  //1-1:
       vlpOriginType = 1;
       vlpTargetType = vlpOriginType;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	  //2-2:
 	  vlpOriginType = 2;
       vlpTargetType = vlpOriginType;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	  //3-3: remember type 3 = dendrimer
 	  vlpOriginType = 4;
       vlpTargetType = vlpOriginType;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	  //1-2:
       vlpOriginType = 1;
       vlpTargetType = 2;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	  //1-3:
       vlpOriginType = 1;
       vlpTargetType = 4;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	  //2-3:
       vlpOriginType = 2;
       vlpTargetType = 4;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	}
 	
@@ -334,52 +334,52 @@ int main(int argc, char* argv[])
 	  //1-1:
       vlpOriginType = 1;
       vlpTargetType = vlpOriginType;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	  //2-2:
 	  vlpOriginType = 2;
       vlpTargetType = vlpOriginType;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	  //3-3: remember type 3 = dendrimer
 	  vlpOriginType = 4;
       vlpTargetType = vlpOriginType;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	  //4-4:
 	  vlpOriginType = 5;
       vlpTargetType = vlpOriginType;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	  //1-2:
       vlpOriginType = 1;
       vlpTargetType = 2;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	  //1-3:
       vlpOriginType = 1;
       vlpTargetType = 4;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	  //1-4:
       vlpOriginType = 1;
       vlpTargetType = 5;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	  //2-3:
       vlpOriginType = 2;
       vlpTargetType = 4;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	  //2-4:
       vlpOriginType = 2;
       vlpTargetType = 5;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  
 	  //2-3:
       vlpOriginType = 4;
       vlpTargetType = 5;
-	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames);
+	  calculate_dendrimers(vlpTypes, vlpOriginType, vlpTargetType, threshold_distance, total_vlp_number, data_collect_frequency, start_filenumber, samples, totalframes, skipFrames,edge_length);
 	  	  
 	}
 			
