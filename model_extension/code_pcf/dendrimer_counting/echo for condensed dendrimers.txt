@@ -1,0 +1,51 @@
+echo for condensed dendrimers:
+Dv/dd/cv/cd/#vlps/L/components/PCF?/dend/frames/start frame/separation/skip/ 
+
+============================================================================
+
+1 and 2 comp: total VLPs is 540. total atoms = 54540 (dends = 54000)
+
+-> For gr:
+
+tail -n 54549000 dumpVLP.melt > last1000frames.out
+awk '/ITEM: TIMESTEP/{x="frame"++i;}{print > x;}' last1000frames.out
+
+echo 56 6.7 370 100 540 23.9861 1 1 0 500 500 1 1 0.01| ./gr
+
+2-comp:
+echo 56 6.7 370 100 540 23.9861 2 1 0 500 500 1 1 0.01| ./gr
+
+-> For dendrimers:
+
+ tail -n 5454900 dumpAll.melt > last100frames.out
+ awk '/ITEM: TIMESTEP/{x="frame"++i;}{print > x;}' last100frames.out
+
+echo 56 6.7 370 100 540 23.9861 1 0 1 50 50 1 1 1.05 | ./gr
+
+2-comp
+echo 56 6.7 370 100 540 23.9861 2 0 1 50 50 1 1 1.05 | ./gr
+
+
+============================================================================
+
+3 and 4 comp: total VLPs=1500 total atoms=151500 (dends = 150000)
+
+-> For gr:
+
+tail -n 151509000 dumpVLP.melt > last1000frames.out
+awk '/ITEM: TIMESTEP/{x="frame"++i;}{print > x;}' last1000frames.out
+
+3-comp
+
+-> For dendrimers:
+ tail -n 15150900 dumpAll.melt > last100frames.out
+ awk '/ITEM: TIMESTEP/{x="frame"++i;}{print > x;}' last100frames.out
+
+3-comp
+echo 56 6.7 370 100 1500 33.7177 3 0 1 50 50 1 1 1.05 | ./gr
+
+4-comp
+echo 56 6.7 370 100 1500 33.7177 4 0 1 50 50 1 1 1.05 | ./gr
+
+
+
